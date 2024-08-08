@@ -267,12 +267,10 @@ int main(int argc, char *argv[]) {
         else{
           fun1(line,node_component,type,value);
           edges.push_back({node_component[0], node_component[1], component, type, value});
-          // 存储节点  
           nodes.insert(node_component[0]);
           nodes.insert(node_component[1]);
         }
     }  
-
     netlist.close();  
     /*
     // 打印子电路信息  
