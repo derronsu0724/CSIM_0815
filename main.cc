@@ -169,8 +169,8 @@ int main(int argc, char *argv[]) {
         if (line.empty() || line[0] == '*') continue;  
 
         std::istringstream iss(line);  
-        std::string component;  
-        iss >> component; // 读取元件名称  
+        std::string component;
+        iss >> component; // 读取元件名称
 
         std::string node1, node2;  
         std::string type;  // 存储类型  
@@ -212,7 +212,7 @@ int main(int argc, char *argv[]) {
               edges.push_back({node1, node2, component, type, value});  
           }
           // 存储节点  
-          nodes.insert(node1);  
+          nodes.insert(node1);
           nodes.insert(node2);
         }
     }  
