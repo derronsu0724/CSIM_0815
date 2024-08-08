@@ -13,7 +13,14 @@
 #include <iostream>  
 #include <fstream>  
 #include <string>  
-
+#include <boost/regex.hpp>
+std::vector<std::string> split_space(const std::string& text) {
+  boost::regex ws_re("\\s+");
+  std::vector<std::string> vector_(
+      boost::sregex_token_iterator(text.begin(), text.end(), ws_re, -1),
+      boost::sregex_token_iterator());
+  return vector_;
+}
 class Graph {
 private:
     std::vector<std::vector<int>> adjacencyList;
@@ -57,23 +64,26 @@ struct Subcircuit {
     std::vector<Edge> components; // 子电路内部元件  
 };
 
-void fun1(std::string& line,std::string& node1,std::string& node2,std::string& type, std::string& value)
+void fun1(std::string& line,std::vector<std::string>& node,std::string& type, std::string& value)
 {
           std::istringstream iss(line);
           std::string component;
           iss >> component; // 读取元件名称
-          if (component[0] == 'R' ) {  
+          std::string node1,node2;
+          if (component[0] == 'R' ) {              
               iss >> node1 >> node2 >> value; // 读取节点和元件的值 
               type="resistor";
           } else if (component[0] == 'C') { 
               iss >> node1 >> node2 >> value; // 读取节点和元件的值  
               type="capacitor";
-          } else if (component[0] == 'L') { 
+          } else if (component[0] == 'L') {
               iss >> node1 >> node2 >> value; // 读取节点和元件的值  
               type="inductor";
-          } else if (component[0] == 'V') { // 处理电压源  
+          } else if (component[0] == 'V') { // 处理电压源 
               iss >> node1 >> node2 >> type >> value; // 读取节点、类型和电压值  
           }
+          node.push_back(node1);
+          node.push_back(node2);
 }
 
 int main(int argc, char *argv[]) {
@@ -191,8 +201,9 @@ int main(int argc, char *argv[]) {
         std::istringstream iss(line);  
         std::string component;
         iss >> component; // 读取元件名称
-
-        std::string node1, node2;  
+        
+        std::string node1, node2;
+        std::vector<std::string> node_component;
         std::string type;  // 存储类型  
         std::string value; // 存储元件的值  
 
@@ -210,17 +221,27 @@ int main(int argc, char *argv[]) {
               in_subcircuit = false;  
           } else if (in_subcircuit) { // 子电路内部元件  
               // 在这里继续解析元件  
-              fun1(line,node1,node2,type,value);
-              current_subcircuit.components.push_back({node1, node2, component, type, value});  
-              current_subcircuit.nodes.push_back(node1);  
-              current_subcircuit.nodes.push_back(node2);  
-        } 
+              fun1(line,node_component,type,value);
+              current_subcircuit.components.push_back({node_component[0], node_component[1], component, type, value});  
+              current_subcircuit.nodes.push_back(node_component[0]);  
+              current_subcircuit.nodes.push_back(node_component[1]);  
+        }
+        else if (component[0] == 'X') { 
+              std::cout   <<__LINE__ <<"\n";
+              auto temp_=split_space(line);
+              std::string lastElement = temp_.back();
+              std::cout  <<"lastElement:" <<lastElement <<"\n";
+              for(auto ii:temp_)
+              {
+                std::cout   <<ii <<"\n";
+              }
+        }
         else{
-          fun1(line,node1,node2,type,value);
-          edges.push_back({node1, node2, component, type, value});
+          fun1(line,node_component,type,value);
+          edges.push_back({node_component[0], node_component[1], component, type, value});
           // 存储节点  
-          nodes.insert(node1);
-          nodes.insert(node2);
+          nodes.insert(node_component[0]);
+          nodes.insert(node_component[1]);
         }
     }  
 
