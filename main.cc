@@ -60,7 +60,8 @@ struct Edge {
 
 struct Subcircuit {  
     std::string name;      // 子电路名  
-    std::vector<std::string> nodes; // 端口列表  
+    std::vector<std::string> nodes;
+    std::set<std::string> external_nodes;
     std::vector<Edge> components; // 子电路内部元件  
 };
 
@@ -213,7 +214,7 @@ int main(int argc, char *argv[]) {
               iss >> current_subcircuit.name;  
               std::string node;  
               while (iss >> node) {  
-                  current_subcircuit.nodes.push_back(node);  
+                  current_subcircuit.external_nodes.insert(node);  
               }  
           } else if (in_subcircuit && component == ".ENDS") { // 子电路结束  
               subcircuits.push_back(current_subcircuit);  
@@ -223,8 +224,8 @@ int main(int argc, char *argv[]) {
               // 在这里继续解析元件  
               fun1(line,node_component,type,value);
               current_subcircuit.components.push_back({node_component[0], node_component[1], component, type, value});  
-              current_subcircuit.nodes.push_back(node_component[0]);  
-              current_subcircuit.nodes.push_back(node_component[1]);  
+              //current_subcircuit.nodes.push_back(node_component[0]);  
+              //current_subcircuit.nodes.push_back(node_component[1]);  
         }
         else if (component[0] == 'X') { 
               std::cout   <<__LINE__ <<"\n";
@@ -251,8 +252,8 @@ int main(int argc, char *argv[]) {
     std::cout << "\nSubcircuits:" << std::endl;  
     for (const auto &subcircuit : subcircuits) {  
         std::cout << "Subcircuit: " << subcircuit.name << std::endl;  
-        std::cout << "Nodes: ";  
-        for (const auto &node : subcircuit.nodes) {  
+        std::cout << "External Nodes: ";        
+        for (const auto &node : subcircuit.external_nodes) {  
             std::cout << node << " ";  
         }  
         std::cout << std::endl;  
