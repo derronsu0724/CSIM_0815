@@ -200,23 +200,19 @@ int main(int argc, char *argv[]) {
     std::vector<Edge> edges;       // 存储边  
 
     if (!netlist) {  
-        std::cerr << "Unable to open file！" << std::endl;  
+        std::cerr << "Unable to open file!" << std::endl;  
         return 1;  
     }  
 
     while (std::getline(netlist, line)) {  
         // 跳过注释行  
-        if (line.empty() || line[0] == '*') continue;  
-
-        std::istringstream iss(line);  
+        if (line.empty() || line[0] == '*') continue;
+        std::istringstream iss(line);
         std::string component;
-        iss >> component; // 读取元件名称
-        
-        std::string node1, node2;
+        iss >> component; // 读取元件名称        
         std::vector<std::string> node_component;
         std::string type;  // 存储类型  
-        std::string value; // 存储元件的值  
-
+        std::string value; // 存储元件的值
         // 解析节点和元件值
         if (component == ".SUBCKT") { // 检测子电路开始  
               in_subcircuit = true;  
@@ -243,7 +239,6 @@ int main(int argc, char *argv[]) {
               std::vector<std::string> a1;
               for(size_t ii=1;ii<temp_.size()-1;ii++)
               {
-                // std::cout   <<temp_[ii] <<"\n";
                 a1.push_back(temp_[ii]);
                 nodes.insert(temp_[ii]);
               }
