@@ -232,9 +232,9 @@ int main(int argc, char *argv[]) {
               auto temp_=split_space(line);
               std::string lastElement = temp_.back();
               std::cout  <<"lastElement:" <<lastElement <<"\n";
-              for(auto ii:temp_)
+              for(size_t ii=1;ii<temp_.size()-1;ii++)
               {
-                std::cout   <<ii <<"\n";
+                std::cout   <<temp_[ii] <<"\n";
               }
         }
         else{
