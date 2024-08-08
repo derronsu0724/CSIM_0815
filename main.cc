@@ -168,9 +168,12 @@ int main(int argc, char *argv[]) {
         std::string value; // 存储元件的值  
 
         // 解析节点和元件值  
-        if (component[0] == 'R' || component[0] == 'C') {  
+        if (component[0] == 'R' ) {  
             iss >> node1 >> node2 >> value; // 读取节点和元件的值  
-            edges.push_back({node1, node2, component, "", value}); // 没有类型  
+            edges.push_back({node1, node2, component, "R", value}); // 没有类型 
+        } else if (component[0] == 'C') { 
+            iss >> node1 >> node2 >> value; // 读取节点和元件的值  
+            edges.push_back({node1, node2, component, "C", value}); // 没有类型 
         } else if (component[0] == 'V') { // 处理电压源  
             iss >> node1 >> node2 >> type >> value; // 读取节点、类型和电压值  
             edges.push_back({node1, node2, component, type, value});  
