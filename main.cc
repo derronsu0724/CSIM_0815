@@ -290,19 +290,19 @@ int main(int argc, char *argv[]) {
             }  
         }
         */
-        // 打印节点  
-        std::cout << "node:" ;  
+        // 打印节点
+        std::cout << "node:" ;
         for (const auto &node : nodes) {  
-            std::cout << node << ",";  
+            std::cout << node << ",";
         }
-        std::cout  << std::endl; 
-        // 打印边  
-        std::cout << "\n edge:" << std::endl;  
-        for (const auto &edge : edges) {  
-            if (edge.type.empty()) {  
+        std::cout  << std::endl;
+        // 打印边
+        std::cout << "\n edge:" << std::endl;
+        for (const auto &edge : edges) {
+            if (edge.type.empty()) {
                 std::cout << edge.component << ": " << edge.from << " -> " << edge.to   
                         << " (value: " << edge.value << ")" << std::endl;  
-            } else {  
+            } else {
                 std::cout << edge.component << ": " << edge.from << " -> " << edge.to   
                         << " (type: " << edge.type << ", value: " << edge.value << ")" << std::endl;  
             }  
