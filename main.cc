@@ -148,7 +148,7 @@ int main(int argc, char *argv[]) {
       std::vector<Edge> edges;       // 用于存储边  
 
       if (!netlist) {  
-          std::cerr << "无法打开文件！" << std::endl;  
+          std::cerr << "Unable to open file!" << std::endl;  
           return 1;  
       }  
 
@@ -195,3 +195,4 @@ int main(int argc, char *argv[]) {
     }
   return 1;
 }
+// cmake .. -Denable_testcases=ON -Denable_coverage=ON -DCMAKE_BUILD_TYPE=Debug -G "MSYS Makefiles"
