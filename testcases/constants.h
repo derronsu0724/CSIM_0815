@@ -12,7 +12,7 @@
 #if defined(CSIM_IN_CYGWIN)
 #define DLIB_PREFIX "cyg"
 #elif defined(CSIM_IN_WIN32)
-#define DLIB_PREFIX ""
+#define DLIB_PREFIX "lib"
 #else
 #define DLIB_PREFIX "lib"
 #endif

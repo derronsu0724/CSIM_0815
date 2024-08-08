@@ -78,3 +78,8 @@ endif ()
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/doc")
 
+add_executable(test2
+    "${CMAKE_CURRENT_SOURCE_DIR}/main.cc"
+
+)
+target_link_libraries(test2 pthread csim)
