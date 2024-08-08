@@ -132,8 +132,9 @@ int main(int argc, char *argv[]) {
         netlist << "V1 1 0 DC 5V\n";           // 电压源  
         netlist << "R1 1 2 1k\n";              // 电阻  
         netlist << "C1 2 0 10n\n";             // 电容  
-        netlist << ".model NMOS NMOS (VTO=0.7)\n"; // NMOS模型定义  
-        netlist << "M1 3 1 0 0 NMOS W=10u L=1u\n"; // 晶体管  
+        netlist << "L2 2 0 11\n"; 
+        // netlist << ".model NMOS NMOS (VTO=0.7)\n"; // NMOS模型定义  
+         // netlist << "M1 3 1 0 0 NMOS W=10u L=1u\n"; // 晶体管  
         netlist << ".tran 0.1ms 10ms\n";       // 转换分析指令  
         netlist << ".end\n";                   // 网表结束  
 
@@ -170,10 +171,13 @@ int main(int argc, char *argv[]) {
         // 解析节点和元件值  
         if (component[0] == 'R' ) {  
             iss >> node1 >> node2 >> value; // 读取节点和元件的值  
-            edges.push_back({node1, node2, component, "R", value}); // 没有类型 
+            edges.push_back({node1, node2, component, "resistor", value});
         } else if (component[0] == 'C') { 
             iss >> node1 >> node2 >> value; // 读取节点和元件的值  
-            edges.push_back({node1, node2, component, "C", value}); // 没有类型 
+            edges.push_back({node1, node2, component, "capacitor", value});
+        } else if (component[0] == 'L') { 
+            iss >> node1 >> node2 >> value; // 读取节点和元件的值  
+            edges.push_back({node1, node2, component, "inductor", value});
         } else if (component[0] == 'V') { // 处理电压源  
             iss >> node1 >> node2 >> type >> value; // 读取节点、类型和电压值  
             edges.push_back({node1, node2, component, type, value});  
