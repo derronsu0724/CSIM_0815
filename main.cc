@@ -61,7 +61,7 @@ struct Edge {
 struct Subcircuit {  
     std::string name;      // 子电路名  
     std::vector<std::string> nodes;
-    std::set<std::string> external_nodes;
+    std::vector<std::string> external_nodes;
     std::vector<Edge> components; // 子电路内部元件  
 };
 
@@ -86,6 +86,15 @@ void fun1(std::string& line,std::vector<std::string>& node,std::string& type, st
           node.push_back(node1);
           node.push_back(node2);
 }
+
+int findNodePosition(const std::string& node1, const std::vector<std::string>& a1) {  
+    for (size_t i = 0; i < a1.size(); ++i) {  
+        if (a1[i] == node1) {  
+            return static_cast<int>(i); // 找到时返回索引  
+        }  
+    }  
+    return -1; // -1 表示未找到  
+} 
 
 int main(int argc, char *argv[]) {
     std::vector<std::string> temp1(argc);
@@ -214,8 +223,8 @@ int main(int argc, char *argv[]) {
               iss >> current_subcircuit.name;  
               std::string node;  
               while (iss >> node) {  
-                  current_subcircuit.external_nodes.insert(node);  
-              }  
+                  current_subcircuit.external_nodes.push_back(node);  
+              }
           } else if (in_subcircuit && component == ".ENDS") { // 子电路结束  
               subcircuits.push_back(current_subcircuit);  
               current_subcircuit = Subcircuit(); // 清空当前子电路  
@@ -228,13 +237,36 @@ int main(int argc, char *argv[]) {
               //current_subcircuit.nodes.push_back(node_component[1]);  
         }
         else if (component[0] == 'X') { 
-              std::cout   <<__LINE__ <<"\n";
+              //std::cout   <<__LINE__ <<"\n";
               auto temp_=split_space(line);
               std::string lastElement = temp_.back();
-              std::cout  <<"lastElement:" <<lastElement <<"\n";
+              std::vector<std::string> a1;
               for(size_t ii=1;ii<temp_.size()-1;ii++)
               {
-                std::cout   <<temp_[ii] <<"\n";
+                // std::cout   <<temp_[ii] <<"\n";
+                a1.push_back(temp_[ii]);
+                nodes.insert(temp_[ii]);
+              }
+              for (const auto &subcircuit : subcircuits) { 
+                if(subcircuit.name == lastElement)
+                {
+                  for (const auto &component : subcircuit.components) {
+                    std::string temp_node1,temp_node2;
+                    if(findNodePosition(component.from,subcircuit.external_nodes) !=-1){
+                      temp_node1=a1[findNodePosition(component.from,subcircuit.external_nodes)];
+                    } else{
+                      temp_node1=component.from;
+                    }
+                    if(findNodePosition(component.to,subcircuit.external_nodes) !=-1){
+                      temp_node2=a1[findNodePosition(component.to,subcircuit.external_nodes)];
+                    } else{
+                      temp_node2=component.to;
+                    }
+                     edges.push_back({temp_node1, temp_node2, component.component+"_"+subcircuit.name, component.type, component.value});
+                  }
+                  break;
+                }
+                
               }
         }
         else{
@@ -247,7 +279,7 @@ int main(int argc, char *argv[]) {
     }  
 
     netlist.close();  
-
+    /*
     // 打印子电路信息  
     std::cout << "\nSubcircuits:" << std::endl;  
     for (const auto &subcircuit : subcircuits) {  
@@ -264,7 +296,7 @@ int main(int argc, char *argv[]) {
                       << " (type: " << component.type << ", value: " << component.value << ")" << std::endl;  
         }  
     }
-
+    */
     // 打印节点  
     std::cout << "node:" << std::endl;  
     for (const auto &node : nodes) {  
