@@ -51,6 +51,11 @@ struct Edge {
     std::string value; // 存储元件的值（如 5V）  
 };  
 
+struct Subcircuit {  
+    std::string name;      // 子电路名  
+    std::vector<std::string> nodes; // 端口列表  
+    std::vector<Edge> components; // 子电路内部元件  
+};  
 int main(int argc, char *argv[]) {
     std::vector<std::string> temp1(argc);
     for (int i = 0; i < argc; i++) {
@@ -145,8 +150,11 @@ int main(int argc, char *argv[]) {
     }
     else if  (temp1.at(1) == "4") {
   
-      std::ifstream netlist("circuit.sp");  
-    std::string line;  
+    std::ifstream netlist("circuit.sp");  
+    std::string line; 
+    std::vector<Subcircuit> subcircuits; // 存储所有子电路
+    Subcircuit current_subcircuit;  
+    bool in_subcircuit = false;  
 
     std::set<std::string> nodes;  // 存储节点  
     std::vector<Edge> edges;       // 存储边  
@@ -168,8 +176,27 @@ int main(int argc, char *argv[]) {
         std::string type;  // 存储类型  
         std::string value; // 存储元件的值  
 
-        // 解析节点和元件值  
-        if (component[0] == 'R' ) {  
+        // 解析节点和元件值
+        if (component == ".SUBCKT") { // 检测子电路开始  
+              in_subcircuit = true;  
+              iss >> current_subcircuit.name;  
+              std::string node;  
+              while (iss >> node) {  
+                  current_subcircuit.nodes.push_back(node);  
+              }  
+          } else if (in_subcircuit && component == ".ENDS") { // 子电路结束  
+              subcircuits.push_back(current_subcircuit);  
+              current_subcircuit = Subcircuit(); // 清空当前子电路  
+              in_subcircuit = false;  
+          } else if (in_subcircuit) { // 子电路内部元件  
+              // 在这里继续解析元件  
+              // 为了简单起见，假设内部元件的解析与之前相同  
+              // 例如：读取 node1, node2, type, value 等  
+              iss >> node1 >> node2  >> value;  
+              current_subcircuit.components.push_back({node1, node2, component, "resistor", value});  
+              current_subcircuit.nodes.push_back(node1);  
+              current_subcircuit.nodes.push_back(node2);  
+          } else if (component[0] == 'R' ) {  
             iss >> node1 >> node2 >> value; // 读取节点和元件的值  
             edges.push_back({node1, node2, component, "resistor", value});
         } else if (component[0] == 'C') { 
@@ -189,6 +216,23 @@ int main(int argc, char *argv[]) {
     }  
 
     netlist.close();  
+
+    // 打印子电路信息  
+    std::cout << "\nSubcircuits:" << std::endl;  
+    for (const auto &subcircuit : subcircuits) {  
+        std::cout << "Subcircuit: " << subcircuit.name << std::endl;  
+        std::cout << "Nodes: ";  
+        for (const auto &node : subcircuit.nodes) {  
+            std::cout << node << " ";  
+        }  
+        std::cout << std::endl;  
+
+        std::cout << "Components: " << std::endl;  
+        for (const auto &component : subcircuit.components) {  
+            std::cout << component.component << ": " << component.from << " -> " << component.to  
+                      << " (type: " << component.type << ", value: " << component.value << ")" << std::endl;  
+        }  
+    }
 
     // 打印节点  
     std::cout << "node:" << std::endl;  
