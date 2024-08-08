@@ -55,7 +55,27 @@ struct Subcircuit {
     std::string name;      // 子电路名  
     std::vector<std::string> nodes; // 端口列表  
     std::vector<Edge> components; // 子电路内部元件  
-};  
+};
+
+void fun1(std::string& line,std::string& node1,std::string& node2,std::string& type, std::string& value)
+{
+          std::istringstream iss(line);
+          std::string component;
+          iss >> component; // 读取元件名称
+          if (component[0] == 'R' ) {  
+              iss >> node1 >> node2 >> value; // 读取节点和元件的值 
+              type="resistor";
+          } else if (component[0] == 'C') { 
+              iss >> node1 >> node2 >> value; // 读取节点和元件的值  
+              type="capacitor";
+          } else if (component[0] == 'L') { 
+              iss >> node1 >> node2 >> value; // 读取节点和元件的值  
+              type="inductor";
+          } else if (component[0] == 'V') { // 处理电压源  
+              iss >> node1 >> node2 >> type >> value; // 读取节点、类型和电压值  
+          }
+}
+
 int main(int argc, char *argv[]) {
     std::vector<std::string> temp1(argc);
     for (int i = 0; i < argc; i++) {
@@ -190,27 +210,14 @@ int main(int argc, char *argv[]) {
               in_subcircuit = false;  
           } else if (in_subcircuit) { // 子电路内部元件  
               // 在这里继续解析元件  
-              // 为了简单起见，假设内部元件的解析与之前相同  
-              // 例如：读取 node1, node2, type, value 等  
-              iss >> node1 >> node2  >> value;  
-              current_subcircuit.components.push_back({node1, node2, component, "resistor", value});  
+              fun1(line,node1,node2,type,value);
+              current_subcircuit.components.push_back({node1, node2, component, type, value});  
               current_subcircuit.nodes.push_back(node1);  
               current_subcircuit.nodes.push_back(node2);  
         } 
         else{
-          if (component[0] == 'R' ) {  
-              iss >> node1 >> node2 >> value; // 读取节点和元件的值  
-              edges.push_back({node1, node2, component, "resistor", value});
-          } else if (component[0] == 'C') { 
-              iss >> node1 >> node2 >> value; // 读取节点和元件的值  
-              edges.push_back({node1, node2, component, "capacitor", value});
-          } else if (component[0] == 'L') { 
-              iss >> node1 >> node2 >> value; // 读取节点和元件的值  
-              edges.push_back({node1, node2, component, "inductor", value});
-          } else if (component[0] == 'V') { // 处理电压源  
-              iss >> node1 >> node2 >> type >> value; // 读取节点、类型和电压值  
-              edges.push_back({node1, node2, component, type, value});  
-          }
+          fun1(line,node1,node2,type,value);
+          edges.push_back({node1, node2, component, type, value});
           // 存储节点  
           nodes.insert(node1);
           nodes.insert(node2);
