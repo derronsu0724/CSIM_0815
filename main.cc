@@ -196,23 +196,26 @@ int main(int argc, char *argv[]) {
               current_subcircuit.components.push_back({node1, node2, component, "resistor", value});  
               current_subcircuit.nodes.push_back(node1);  
               current_subcircuit.nodes.push_back(node2);  
-          } else if (component[0] == 'R' ) {  
-            iss >> node1 >> node2 >> value; // 读取节点和元件的值  
-            edges.push_back({node1, node2, component, "resistor", value});
-        } else if (component[0] == 'C') { 
-            iss >> node1 >> node2 >> value; // 读取节点和元件的值  
-            edges.push_back({node1, node2, component, "capacitor", value});
-        } else if (component[0] == 'L') { 
-            iss >> node1 >> node2 >> value; // 读取节点和元件的值  
-            edges.push_back({node1, node2, component, "inductor", value});
-        } else if (component[0] == 'V') { // 处理电压源  
-            iss >> node1 >> node2 >> type >> value; // 读取节点、类型和电压值  
-            edges.push_back({node1, node2, component, type, value});  
-        }  
+        } 
+        else{
+          if (component[0] == 'R' ) {  
+              iss >> node1 >> node2 >> value; // 读取节点和元件的值  
+              edges.push_back({node1, node2, component, "resistor", value});
+          } else if (component[0] == 'C') { 
+              iss >> node1 >> node2 >> value; // 读取节点和元件的值  
+              edges.push_back({node1, node2, component, "capacitor", value});
+          } else if (component[0] == 'L') { 
+              iss >> node1 >> node2 >> value; // 读取节点和元件的值  
+              edges.push_back({node1, node2, component, "inductor", value});
+          } else if (component[0] == 'V') { // 处理电压源  
+              iss >> node1 >> node2 >> type >> value; // 读取节点、类型和电压值  
+              edges.push_back({node1, node2, component, type, value});  
+          }  
 
-        // 存储节点  
-        nodes.insert(node1);  
-        nodes.insert(node2);  
+          // 存储节点  
+          nodes.insert(node1);  
+          nodes.insert(node2);
+        }
     }  
 
     netlist.close();  
