@@ -210,8 +210,7 @@ int main(int argc, char *argv[]) {
           } else if (component[0] == 'V') { // 处理电压源  
               iss >> node1 >> node2 >> type >> value; // 读取节点、类型和电压值  
               edges.push_back({node1, node2, component, type, value});  
-          }  
-
+          }
           // 存储节点  
           nodes.insert(node1);  
           nodes.insert(node2);
