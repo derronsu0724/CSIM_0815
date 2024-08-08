@@ -190,123 +190,123 @@ int main(int argc, char *argv[]) {
     }
     else if  (temp1.at(1) == "4") {
   
-    std::ifstream netlist("circuit.sp");  
-    std::string line; 
-    std::vector<Subcircuit> subcircuits; // 存储所有子电路
-    Subcircuit current_subcircuit;  
-    bool in_subcircuit = false;  
+        std::ifstream netlist("circuit.sp");  
+        std::string line; 
+        std::vector<Subcircuit> subcircuits; // 存储所有子电路
+        Subcircuit current_subcircuit;  
+        bool in_subcircuit = false;  
 
-    std::set<std::string> nodes;  // 存储节点  
-    std::vector<Edge> edges;       // 存储边  
+        std::set<std::string> nodes;  // 存储节点  
+        std::vector<Edge> edges;       // 存储边  
 
-    if (!netlist) {  
-        std::cerr << "Unable to open file!" << std::endl;  
-        return 1;  
-    }  
+        if (!netlist) {  
+            std::cerr << "Unable to open file!" << std::endl;  
+            return 1;  
+        }  
 
-    while (std::getline(netlist, line)) {  
-        // 跳过注释行  
-        if (line.empty() || line[0] == '*') continue;
-        std::istringstream iss(line);
-        std::string component;
-        iss >> component; // 读取元件名称        
-        std::vector<std::string> node_component;
-        std::string type;  // 存储类型  
-        std::string value; // 存储元件的值
-        // 解析节点和元件值
-        if (component == ".SUBCKT") { // 检测子电路开始  
-              in_subcircuit = true;  
-              iss >> current_subcircuit.name;  
-              std::string node;  
-              while (iss >> node) {  
-                  current_subcircuit.external_nodes.push_back(node);  
-              }
-          } else if (in_subcircuit && component == ".ENDS") { // 子电路结束  
-              subcircuits.push_back(current_subcircuit);  
-              current_subcircuit = Subcircuit(); // 清空当前子电路  
-              in_subcircuit = false;  
-          } else if (in_subcircuit) { // 子电路内部元件  
-              // 在这里继续解析元件  
-              fun1(line,node_component,type,value);
-              current_subcircuit.components.push_back({node_component[0], node_component[1], component, type, value});  
-              //current_subcircuit.nodes.push_back(node_component[0]);  
-              //current_subcircuit.nodes.push_back(node_component[1]);  
-        }
-        else if (component[0] == 'X') { 
-              //std::cout   <<__LINE__ <<"\n";
-              auto temp_=split_space(line);
-              std::string lastElement = temp_.back();
-              std::vector<std::string> a1;
-              for(size_t ii=1;ii<temp_.size()-1;ii++)
-              {
-                a1.push_back(temp_[ii]);
-                nodes.insert(temp_[ii]);
-              }
-              for (const auto &subcircuit : subcircuits) { 
-                if(subcircuit.name == lastElement)
-                {
-                  for (const auto &component : subcircuit.components) {
-                    std::string temp_node1,temp_node2;
-                    if(findNodePosition(component.from,subcircuit.external_nodes) !=-1){
-                      temp_node1=a1[findNodePosition(component.from,subcircuit.external_nodes)];
-                    } else{
-                      temp_node1=component.from;
-                    }
-                    if(findNodePosition(component.to,subcircuit.external_nodes) !=-1){
-                      temp_node2=a1[findNodePosition(component.to,subcircuit.external_nodes)];
-                    } else{
-                      temp_node2=component.to;
-                    }
-                     edges.push_back({temp_node1, temp_node2, component.component+"_"+subcircuit.name, component.type, component.value});
-                  }
-                  break;
+        while (std::getline(netlist, line)) {  
+            // 跳过注释行  
+            if (line.empty() || line[0] == '*') continue;
+            std::istringstream iss(line);
+            std::string component;
+            iss >> component; // 读取元件名称        
+            std::vector<std::string> node_component;
+            std::string type;  // 存储类型  
+            std::string value; // 存储元件的值
+            // 解析节点和元件值
+            if (component == ".SUBCKT") { // 检测子电路开始  
+                in_subcircuit = true;  
+                iss >> current_subcircuit.name;  
+                std::string node;  
+                while (iss >> node) {  
+                    current_subcircuit.external_nodes.push_back(node);  
                 }
-                
-              }
-        }
-        else{
-          fun1(line,node_component,type,value);
-          edges.push_back({node_component[0], node_component[1], component, type, value});
-          nodes.insert(node_component[0]);
-          nodes.insert(node_component[1]);
-        }
-    }  
-    netlist.close();  
-    /*
-    // 打印子电路信息  
-    std::cout << "\nSubcircuits:" << std::endl;  
-    for (const auto &subcircuit : subcircuits) {  
-        std::cout << "Subcircuit: " << subcircuit.name << std::endl;  
-        std::cout << "External Nodes: ";        
-        for (const auto &node : subcircuit.external_nodes) {  
-            std::cout << node << " ";  
+            } else if (in_subcircuit && component == ".ENDS") { // 子电路结束  
+                subcircuits.push_back(current_subcircuit);  
+                current_subcircuit = Subcircuit(); // 清空当前子电路  
+                in_subcircuit = false;  
+            } else if (in_subcircuit) { // 子电路内部元件  
+                // 在这里继续解析元件  
+                fun1(line,node_component,type,value);
+                current_subcircuit.components.push_back({node_component[0], node_component[1], component, type, value});  
+                //current_subcircuit.nodes.push_back(node_component[0]);  
+                //current_subcircuit.nodes.push_back(node_component[1]);  
+            }
+            else if (component[0] == 'X') { 
+                //std::cout   <<__LINE__ <<"\n";
+                auto temp_=split_space(line);
+                std::string lastElement = temp_.back();
+                std::vector<std::string> a1;
+                for(size_t ii=1;ii<temp_.size()-1;ii++)
+                {
+                    a1.push_back(temp_[ii]);
+                    nodes.insert(temp_[ii]);
+                }
+                for (const auto &subcircuit : subcircuits) { 
+                    if(subcircuit.name == lastElement)
+                    {
+                    for (const auto &component : subcircuit.components) {
+                        std::string temp_node1,temp_node2;
+                        if(findNodePosition(component.from,subcircuit.external_nodes) !=-1){
+                        temp_node1=a1[findNodePosition(component.from,subcircuit.external_nodes)];
+                        } else{
+                        temp_node1=component.from;
+                        }
+                        if(findNodePosition(component.to,subcircuit.external_nodes) !=-1){
+                        temp_node2=a1[findNodePosition(component.to,subcircuit.external_nodes)];
+                        } else{
+                        temp_node2=component.to;
+                        }
+                        edges.push_back({temp_node1, temp_node2, component.component+"_"+subcircuit.name, component.type, component.value});
+                    }
+                    break;
+                    }
+                    
+                }
+            }
+            else{
+            fun1(line,node_component,type,value);
+            edges.push_back({node_component[0], node_component[1], component, type, value});
+            nodes.insert(node_component[0]);
+            nodes.insert(node_component[1]);
+            }
         }  
-        std::cout << std::endl;  
+        netlist.close();  
+        /*
+        // 打印子电路信息  
+        std::cout << "\nSubcircuits:" << std::endl;  
+        for (const auto &subcircuit : subcircuits) {  
+            std::cout << "Subcircuit: " << subcircuit.name << std::endl;  
+            std::cout << "External Nodes: ";        
+            for (const auto &node : subcircuit.external_nodes) {  
+                std::cout << node << " ";  
+            }  
+            std::cout << std::endl;  
 
-        std::cout << "Components: " << std::endl;  
-        for (const auto &component : subcircuit.components) {  
-            std::cout << component.component << ": " << component.from << " -> " << component.to  
-                      << " (type: " << component.type << ", value: " << component.value << ")" << std::endl;  
-        }  
-    }
-    */
-    // 打印节点  
-    std::cout << "node:" ;  
-    for (const auto &node : nodes) {  
-        std::cout << node << ",";  
-    }
-    std::cout  << std::endl; 
-    // 打印边  
-    std::cout << "\n edge:" << std::endl;  
-    for (const auto &edge : edges) {  
-        if (edge.type.empty()) {  
-            std::cout << edge.component << ": " << edge.from << " -> " << edge.to   
-                      << " (value: " << edge.value << ")" << std::endl;  
-        } else {  
-            std::cout << edge.component << ": " << edge.from << " -> " << edge.to   
-                      << " (type: " << edge.type << ", value: " << edge.value << ")" << std::endl;  
-        }  
-    } 
+            std::cout << "Components: " << std::endl;  
+            for (const auto &component : subcircuit.components) {  
+                std::cout << component.component << ": " << component.from << " -> " << component.to  
+                        << " (type: " << component.type << ", value: " << component.value << ")" << std::endl;  
+            }  
+        }
+        */
+        // 打印节点  
+        std::cout << "node:" ;  
+        for (const auto &node : nodes) {  
+            std::cout << node << ",";  
+        }
+        std::cout  << std::endl; 
+        // 打印边  
+        std::cout << "\n edge:" << std::endl;  
+        for (const auto &edge : edges) {  
+            if (edge.type.empty()) {  
+                std::cout << edge.component << ": " << edge.from << " -> " << edge.to   
+                        << " (value: " << edge.value << ")" << std::endl;  
+            } else {  
+                std::cout << edge.component << ": " << edge.from << " -> " << edge.to   
+                        << " (type: " << edge.type << ", value: " << edge.value << ")" << std::endl;  
+            }  
+        } 
 
 
     }
