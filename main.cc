@@ -298,11 +298,11 @@ int main(int argc, char *argv[]) {
     }
     */
     // 打印节点  
-    std::cout << "node:" << std::endl;  
+    std::cout << "node:" ;  
     for (const auto &node : nodes) {  
-        std::cout << node << std::endl;  
-    }  
-
+        std::cout << node << ",";  
+    }
+    std::cout  << std::endl; 
     // 打印边  
     std::cout << "\n edge:" << std::endl;  
     for (const auto &edge : edges) {  
