@@ -47,6 +47,8 @@ struct Edge {
     std::string from;  
     std::string to;  
     std::string component;  
+    std::string type; // 存储元件的类型（如 DC）  
+    std::string value; // 存储元件的值（如 5V）  
 };  
 
 int main(int argc, char *argv[]) {
@@ -141,57 +143,64 @@ int main(int argc, char *argv[]) {
         std::cout << "finish" << std::endl;  
     }
     else if  (temp1.at(1) == "4") {
+  
       std::ifstream netlist("circuit.sp");  
-      std::string line;  
+    std::string line;  
 
-      std::set<std::string> nodes;  // 用于存储节点  
-      std::vector<Edge> edges;       // 用于存储边  
+    std::set<std::string> nodes;  // 存储节点  
+    std::vector<Edge> edges;       // 存储边  
 
-      if (!netlist) {  
-          std::cerr << "Unable to open file!" << std::endl;  
-          return 1;  
-      }  
+    if (!netlist) {  
+        std::cerr << "Unable to open file！" << std::endl;  
+        return 1;  
+    }  
 
-      while (std::getline(netlist, line)) {  
-          // 跳过注释行  
-          if (line.empty() || line[0] == '*') continue;  
+    while (std::getline(netlist, line)) {  
+        // 跳过注释行  
+        if (line.empty() || line[0] == '*') continue;  
 
-          std::istringstream iss(line);  
-          std::string component;  
-          iss >> component; // 读取元件名称（例如 V1, R1）  
+        std::istringstream iss(line);  
+        std::string component;  
+        iss >> component; // 读取元件名称  
 
-          std::string node1, node2;  
-          // 解析节点  
-          if (component[0] == 'V' || component[0] == 'R' || component[0] == 'C') {  
-              iss >> node1 >> node2;  
-          } else if (component[0] == 'M') { // 处理晶体管  
-              iss >> node1 >> node2; // 读取输入两个节点  
-              std::string otherNodes; // 其余的节点（如果有的话）  
-              iss >> otherNodes; // 一般会有多个其它节点，且格式为: node3 node4...  
-              // 你可以处理其它节点，如果需要的话  
-          }  
+        std::string node1, node2;  
+        std::string type;  // 存储类型  
+        std::string value; // 存储元件的值  
 
-          // 存储节点  
-          nodes.insert(node1);  
-          nodes.insert(node2);  
+        // 解析节点和元件值  
+        if (component[0] == 'R' || component[0] == 'C') {  
+            iss >> node1 >> node2 >> value; // 读取节点和元件的值  
+            edges.push_back({node1, node2, component, "", value}); // 没有类型  
+        } else if (component[0] == 'V') { // 处理电压源  
+            iss >> node1 >> node2 >> type >> value; // 读取节点、类型和电压值  
+            edges.push_back({node1, node2, component, type, value});  
+        }  
 
-          // 存储边  
-          edges.push_back({node1, node2, component});  
-      }  
+        // 存储节点  
+        nodes.insert(node1);  
+        nodes.insert(node2);  
+    }  
 
-      netlist.close();  
+    netlist.close();  
 
-      // 打印节点  
-      std::cout << "node:" << std::endl;  
-      for (const auto &node : nodes) {  
-          std::cout << node << std::endl;  
-      }  
+    // 打印节点  
+    std::cout << "node:" << std::endl;  
+    for (const auto &node : nodes) {  
+        std::cout << node << std::endl;  
+    }  
 
-      // 打印边  
-      std::cout << "\n edge:" << std::endl;  
-      for (const auto &edge : edges) {  
-          std::cout << edge.component << ": " << edge.from << " -> " << edge.to << std::endl;  
-      }
+    // 打印边  
+    std::cout << "\n edge:" << std::endl;  
+    for (const auto &edge : edges) {  
+        if (edge.type.empty()) {  
+            std::cout << edge.component << ": " << edge.from << " -> " << edge.to   
+                      << " (value: " << edge.value << ")" << std::endl;  
+        } else {  
+            std::cout << edge.component << ": " << edge.from << " -> " << edge.to   
+                      << " (type: " << edge.type << ", value: " << edge.value << ")" << std::endl;  
+        }  
+    } 
+
     }
   return 1;
 }
