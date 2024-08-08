@@ -295,7 +295,7 @@ int main(int argc, char *argv[]) {
         for (const auto &node : nodes) {  
             std::cout << node << ",";
         }
-        std::cout  << std::endl;
+        std::cout << std::endl;
         // 打印边
         std::cout << "\n edge:" << std::endl;
         for (const auto &edge : edges) {
