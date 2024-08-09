@@ -153,8 +153,11 @@ void printEdgePairs(const std::map<std::string, std::vector<std::pair<Edge, std:
 
 static void DCCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges)
 {
+        int ret = 0;
         csim::ModelEntry *e_R = csim::ModelLoader::load(resistorLibrary);
         csim::ModelEntry *e_VDC = csim::ModelLoader::load(VDCLibrary);
+        csim::ModelEntry *e_L = csim::ModelLoader::load(InductorLibrary);
+        csim::ModelEntry *e_CAP = csim::ModelLoader::load(CapacitorLibrary);
         csim::Circuit *circuit = new csim::Circuit();
         // 打印节点
         std::cout << "node:" ;
@@ -169,12 +172,20 @@ static void DCCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges
                 std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (value: " << edge.value << ")" << std::endl;  
             } else if (edge.type == "DC") {            
                 std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value << ")" << std::endl;
+                ret = circuit->netlist()->addComponent(edge.component.c_str(), e_VDC);
+                ret = circuit->netlist()->configComponent(edge.component.c_str(), "V", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(std::stod(edge.value)));
             } else if (edge.type == "resistor") {            
                 std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value << ")" << std::endl;
+                ret = circuit->netlist()->addComponent(edge.component.c_str(), e_R);
+                ret = circuit->netlist()->configComponent(edge.component.c_str(), "R", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(std::stod(edge.value)));
             } else if (edge.type == "capacitor") {            
                 std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value << ")" << std::endl;
+                ret = circuit->netlist()->addComponent(edge.component.c_str(), e_CAP);
+                ret = circuit->netlist()->configComponent(edge.component.c_str(), "C", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(std::stod(edge.value)));
             } else if (edge.type == "inductor") {            
                 std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value << ")" << std::endl;
+                ret = circuit->netlist()->addComponent(edge.component.c_str(), e_L);
+                ret = circuit->netlist()->configComponent(edge.component.c_str(), "L", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(std::stod(edge.value)));
             }
         }
         // 调用函数  
