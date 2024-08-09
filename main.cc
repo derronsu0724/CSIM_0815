@@ -124,8 +124,8 @@ std::map<std::string, std::vector<std::pair<Edge, std::string>>> findEdgesForNod
 // 函数，生成每个节点下所有边的两两配对  
 void printEdgePairs(const std::map<std::string, std::vector<std::pair<Edge, std::string>>>& nodeEdges) {  
     for (const auto& node : nodeEdges) {  
-        std::cout << "Node: " << node.first << "\n";        
-        const auto& edgesInfo = node.second;  
+        std::cout << "Node: " << node.first << "\n";
+        const auto& edgesInfo = node.second;
         size_t count = edgesInfo.size();        
         for (size_t i = 0; i < count; ++i) {  
             for (size_t j = i + 1; j < count; ++j) {  
@@ -146,9 +146,9 @@ void printEdgePairs(const std::map<std::string, std::vector<std::pair<Edge, std:
                           << ", Values: " << edge1.value << ", " << edge2.value
                           << ", position1: " << position1 << "," <<"position2: " << position2
                           << ")\n";*/
-            }  
-        }  
-    }  
+            }
+        }
+    }
 }
 
 static void DCCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges)
@@ -191,6 +191,21 @@ static void DCCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges
         // 调用函数  
         std::map<std::string, std::vector<std::pair<Edge, std::string>>> nodeEdges = findEdgesForNodes(edges);
         printEdgePairs(nodeEdges);
+    for (const auto& node : nodeEdges) {  
+        std::cout << "Node: " << node.first << "\n";
+        const auto& edgesInfo = node.second;
+        size_t count = edgesInfo.size();        
+        for (size_t i = 0; i < count; ++i) {  
+            for (size_t j = i + 1; j < count; ++j) {  
+                // 两条边的配对  
+                const Edge& edge1 = edgesInfo[i].first;  
+                const Edge& edge2 = edgesInfo[j].first;
+                const std::string& position1 = edgesInfo[i].second;
+                const std::string& position2 = edgesInfo[j].second;
+                std::cout << edge1.component << ", "<< position1 << ", " << edge2.component << ", " << position2<< "\n";
+            }
+        }
+    }
 }
 
 int main(int argc, char *argv[]) {
