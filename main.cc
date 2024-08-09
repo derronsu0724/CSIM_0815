@@ -244,25 +244,18 @@ static void OPCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges
         /* Get nodes */
         auto probe_names_data=findEdgesBetweenProbes(edges,probe_names);
         unsigned int n_gnd;
-        std::vector<csimModel::MComplex> volt(probe_names_data.size()-1);
-        ret = circuit->netlist()->getTermlNode(probe_names_data[2].first.c_str(), probe_names_data[2].second, &n_gnd);
+        unsigned int n3[probe_names_data.size()-1];
+        ret = circuit->netlist()->getTermlNode(probe_names_data[probe_names_data.size()-1].first.c_str(), probe_names_data[probe_names_data.size()-1].second, &n_gnd);
         for (size_t ii=0;ii<probe_names_data.size()-1;ii++)
         {
             unsigned int n1;
             //std::cout << "Component: " << probe_names_data[ii].first << std::endl;
             //std::cout << "node: " << probe_names_data[ii].second << std::endl;
-            ret = circuit->netlist()->getTermlNode(probe_names_data[ii].first.c_str(), probe_names_data[ii].second, &n1);
-            volt[ii]=circuit->getNodeVolt(n1)- circuit->getNodeVolt(n_gnd);
-            std::cout  <<"volt"<<ii<<":" << std::abs(volt[ii])  <<"\n";
+            ret = circuit->netlist()->getTermlNode(probe_names_data[ii].first.c_str(), probe_names_data[ii].second, &n3[ii]);
+            csimModel::MComplex volt = circuit->getNodeVolt(n3[ii]) - circuit->getNodeVolt(n_gnd);
+            std::cout  <<"volt"<<ii<<":" << std::abs(volt)  <<"\n";
         }
-        //ret = circuit->netlist()->getTermlNode(probe_names_data[0].first.c_str(), probe_names_data[0].second, &n1);
-        //ret = circuit->netlist()->getTermlNode(probe_names_data[1].first.c_str(), probe_names_data[1].second, &n2);
-        //ret = circuit->netlist()->getTermlNode("V1", 1, &n_gnd);
         /* Check status of Circuit object */
-        //csimModel::MComplex volt1 = circuit->getNodeVolt(n3[0]) - circuit->getNodeVolt(n_gnd);
-        //std::cout  <<"volt1:" << std::abs(volt1)  <<"\n";
-        //csimModel::MComplex volt2 = circuit->getNodeVolt(n3[1]) - circuit->getNodeVolt(n_gnd);
-        //std::cout  <<"volt2:" << std::abs(volt2)  <<"\n";
         // EXPECT_LT(std::abs(csimModel::MComplex(4.0, 0) - volt), epsilon_linear);
         delete circuit;
         delete e_R;
