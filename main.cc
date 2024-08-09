@@ -150,9 +150,36 @@ void printEdgePairs(const std::map<std::string, std::vector<std::pair<Edge, std:
         }
     }
 }
+std::vector<std::pair<std::string, int>> findEdgesBetweenProbes(std::vector<Edge> edges,std::vector<std::string> probe_names)
+{
+    std::vector<std::pair<std::string, int>> componentFromPair(probe_names.size());
+    int ii=0;
+    for (const auto& probe_1  : probe_names) {
+        // std::cout << "Probe name: " << probe_1 << ",ii: " << ii<< std::endl;  
+        for (const auto& edge : edges) {
+            if ( edge.from == probe_1  )
+            {
+                componentFromPair[ii] = {edge.component, 0};
+                break;
+            } else if ( edge.to == probe_1  )
+            {  
+                componentFromPair[ii] = {edge.component, 1};
+                break;
+            }
+         
+        }
+        ii=ii+1;
+    }
+    for (const auto& ii  : componentFromPair) {
+                std::cout << "Component: " << ii.first << std::endl;  
+                std::cout << "node: " << ii.second << std::endl;
+    }
+    return componentFromPair;
+}
 
 static void OPCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges,std::vector<std::string> probe_names)
 {
+        probe_names.push_back("0");
         int ret = 0;
         csim::ModelEntry *e_R = csim::ModelLoader::load(resistorLibrary);
         csim::ModelEntry *e_VDC = csim::ModelLoader::load(VDCLibrary);
@@ -168,10 +195,6 @@ static void OPCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges
         std::cout << std::endl;*/
         // 打印边
         // std::cout << "\n edge:" << std::endl;
-        // 输出结果  
-        for (const auto& name : probe_names) {  
-            std::cout << "Probe name: " << name << std::endl;  
-        }
         for (const auto &edge : edges) {
             if (edge.type.empty()) {
                 // std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (value: " << edge.value << ")" << std::endl;  
@@ -219,12 +242,27 @@ static void OPCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges
         csim::Dataset dset;
         ret = analyzer->analyze(&dset);
         /* Get nodes */
-        unsigned int n_gnd, n1;
-        ret = circuit->netlist()->getTermlNode("R1", 1, &n1);
-        ret = circuit->netlist()->getTermlNode("V1", 1, &n_gnd);
+        auto probe_names_data=findEdgesBetweenProbes(edges,probe_names);
+        unsigned int n_gnd;
+        std::vector<csimModel::MComplex> volt(probe_names_data.size()-1);
+        ret = circuit->netlist()->getTermlNode(probe_names_data[2].first.c_str(), probe_names_data[2].second, &n_gnd);
+        for (size_t ii=0;ii<probe_names_data.size()-1;ii++)
+        {
+            unsigned int n1;
+            //std::cout << "Component: " << probe_names_data[ii].first << std::endl;
+            //std::cout << "node: " << probe_names_data[ii].second << std::endl;
+            ret = circuit->netlist()->getTermlNode(probe_names_data[ii].first.c_str(), probe_names_data[ii].second, &n1);
+            volt[ii]=circuit->getNodeVolt(n1)- circuit->getNodeVolt(n_gnd);
+            std::cout  <<"volt"<<ii<<":" << std::abs(volt[ii])  <<"\n";
+        }
+        //ret = circuit->netlist()->getTermlNode(probe_names_data[0].first.c_str(), probe_names_data[0].second, &n1);
+        //ret = circuit->netlist()->getTermlNode(probe_names_data[1].first.c_str(), probe_names_data[1].second, &n2);
+        //ret = circuit->netlist()->getTermlNode("V1", 1, &n_gnd);
         /* Check status of Circuit object */
-        csimModel::MComplex volt = circuit->getNodeVolt(n1) - circuit->getNodeVolt(n_gnd);
-        std::cout  <<"volt:" << std::abs(volt)  <<"\n";
+        //csimModel::MComplex volt1 = circuit->getNodeVolt(n3[0]) - circuit->getNodeVolt(n_gnd);
+        //std::cout  <<"volt1:" << std::abs(volt1)  <<"\n";
+        //csimModel::MComplex volt2 = circuit->getNodeVolt(n3[1]) - circuit->getNodeVolt(n_gnd);
+        //std::cout  <<"volt2:" << std::abs(volt2)  <<"\n";
         // EXPECT_LT(std::abs(csimModel::MComplex(4.0, 0) - volt), epsilon_linear);
         delete circuit;
         delete e_R;
