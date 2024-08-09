@@ -50,19 +50,19 @@ public:
     }
 };
 
-struct Edge {  
-    std::string from;  
-    std::string to;  
-    std::string component;  
-    std::string type; // 存储元件的类型（如 DC）  
-    std::string value; // 存储元件的值（如 5V）  
-};  
+struct Edge {
+    std::string from;
+    std::string to;
+    std::string component;
+    std::string type;
+    std::string value;
+};
 
-struct Subcircuit {  
-    std::string name;      // 子电路名  
+struct Subcircuit {
+    std::string name; //  子电路名  
     std::vector<std::string> nodes;
     std::vector<std::string> external_nodes;
-    std::vector<Edge> components; // 子电路内部元件  
+    std::vector<Edge> components; //  子电路内部元件  
 };
 
 void fun1(std::string& line,std::vector<std::string>& node,std::string& type, std::string& value)
