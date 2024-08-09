@@ -151,7 +151,7 @@ void printEdgePairs(const std::map<std::string, std::vector<std::pair<Edge, std:
     }
 }
 
-static void DCCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges)
+static void OPCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges)
 {
         int ret = 0;
         csim::ModelEntry *e_R = csim::ModelLoader::load(resistorLibrary);
@@ -225,6 +225,13 @@ static void DCCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges
         delete circuit;
         delete e_R;
         delete e_VDC;
+}
+
+static int ACLinearCircuit(std::set<std::string> nodes,std::vector<Edge> edges,const char *fspace, double fstart, double fstop)
+{
+    std::cout   <<__LINE__ <<"ACLinearCircuit\n";
+    int ret = 0;
+    return ret;
 }
 
 int main(int argc, char *argv[]) {
@@ -323,6 +330,7 @@ int main(int argc, char *argv[]) {
         bool in_subcircuit = false;
         std::set<std::string> nodes;  // 存储节点  
         std::vector<Edge> edges;       // 存储边
+        std::vector<std::string> probe_names;
         if (!netlist) {  
             std::cerr << "Unable to open file!" << std::endl;  
             return 1;  
@@ -338,7 +346,7 @@ int main(int argc, char *argv[]) {
             std::string type;  // 存储类型  
             std::string value; // 存储元件的值
             // 解析节点和元件值
-            if (component == ".SUBCKT") { // 检测子电路开始
+            if (component == ".subckt") { // 检测子电路开始
                 in_subcircuit = true;
                 iss >> current_subcircuit.name;
                 std::string node;
@@ -352,6 +360,27 @@ int main(int argc, char *argv[]) {
             } else if (in_subcircuit) {// 子电路内部元件  
                 fun1(line,node_component,type,value);
                 current_subcircuit.components.push_back({node_component[0], node_component[1], component, type, value});  
+            }
+            else if (component == ".probe") {
+                
+                // 查找 .probe 的开始位置
+                size_t probe_pos = line.find(".probe");                
+                // 确保找到了 .probe  
+                if (probe_pos != std::string::npos) {  
+                    // 从 .probe 后面开始查找 v(  
+                    size_t start_pos = line.find("v(", probe_pos);  
+                    while (start_pos != std::string::npos) {  
+                        size_t end_pos = line.find(")", start_pos);  
+                        if (end_pos != std::string::npos) {  
+                            std::string variable = line.substr(start_pos + 2, end_pos - start_pos - 2);  
+                            probe_names.push_back(variable); // 将找到的变量保存到 vector 中  
+                            start_pos = line.find("v(", end_pos);  
+                        } else {  
+                            break;  
+                        }  
+                    }  
+                }
+
             }
             else if (component[0] == 'X') { 
                 //std::cout   <<__LINE__ <<"\n";
@@ -410,8 +439,12 @@ int main(int argc, char *argv[]) {
                         << " (type: " << component.type << ", value: " << component.value << ")" << std::endl;  
             }  
         }
-        */
-        DCCircuit_helper(nodes,edges);
+        
+        // 输出结果  
+        for (const auto& name : probe_names) {  
+            std::cout << "Probe name: " << name << std::endl;  
+        }*/
+        OPCircuit_helper(nodes,edges);
     }
   return 1;
 }
