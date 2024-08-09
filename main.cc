@@ -151,6 +151,30 @@ void printEdgePairs(const std::map<std::string, std::vector<std::pair<Edge, std:
     }  
 }
 
+static void DCCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges)
+{
+        // 打印节点
+        std::cout << "node:" ;
+        for (const auto &node : nodes) {  
+            std::cout << node << ",";
+        }
+        std::cout << std::endl;
+        // 打印边
+        std::cout << "\n edge:" << std::endl;
+        for (const auto &edge : edges) {
+            if (edge.type.empty()) {
+                std::cout << edge.component << ": " << edge.from << " -> " << edge.to   
+                        << " (value: " << edge.value << ")" << std::endl;  
+            } else {
+                std::cout << edge.component << ": " << edge.from << " -> " << edge.to   
+                        << " (type: " << edge.type << ", value: " << edge.value << ")" << std::endl;  
+            }  
+        }
+        // 调用函数  
+        std::map<std::string, std::vector<std::pair<Edge, std::string>>> nodeEdges = findEdgesForNodes(edges);
+        printEdgePairs(nodeEdges);
+}
+
 int main(int argc, char *argv[]) {
     std::vector<std::string> temp1(argc);
     for (int i = 0; i < argc; i++) {
@@ -335,26 +359,7 @@ int main(int argc, char *argv[]) {
             }  
         }
         */
-        // 打印节点
-        std::cout << "node:" ;
-        for (const auto &node : nodes) {  
-            std::cout << node << ",";
-        }
-        std::cout << std::endl;
-        // 打印边
-        std::cout << "\n edge:" << std::endl;
-        for (const auto &edge : edges) {
-            if (edge.type.empty()) {
-                std::cout << edge.component << ": " << edge.from << " -> " << edge.to   
-                        << " (value: " << edge.value << ")" << std::endl;  
-            } else {
-                std::cout << edge.component << ": " << edge.from << " -> " << edge.to   
-                        << " (type: " << edge.type << ", value: " << edge.value << ")" << std::endl;  
-            }  
-        }
-        // 调用函数  
-        std::map<std::string, std::vector<std::pair<Edge, std::string>>> nodeEdges = findEdgesForNodes(edges);
-        printEdgePairs(nodeEdges);
+        DCCircuit_helper(nodes,edges);
     }
   return 1;
 }
