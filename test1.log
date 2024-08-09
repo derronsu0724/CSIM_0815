@@ -1,0 +1,107 @@
+--------------------------------------------------------------------------------
+Running /mnt/d/btdsim/btdsim_20240523/btd_bin/btdsim test1_IBISdiff_poweron.sp -f nutascii 
+--------------------------------------------------------------------------------
+
+ **************************************************************
+ * Version: btdsim 64-bit (20240523_fe5aadfd1)(release)       *
+ * Release date: 2024-05-23                                   *
+ * Current time: 2024-05-23 15:30:55 CST                      *
+ * User: root, Host: BTD, PID: 33                             *
+ * Copyright (c) 2024 by BTD Technology. All Rights Reserved. *
+ **************************************************************
+
+------------------------------ Machine Information ------------------------------
+OS              : Linux5.10.16.3-microsoft-standard-WSL2#1 SMP Fri Apr 2 22:23:49 UTC 2021
+Number of CPU   : 16 of 16 is available
+CPU Vendor      : GenuineIntel
+CPU Model       : Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz
+Total RAM       : 15.5458 GB
+Available RAM   : 15.2001 GB
+---------------------------------------------------------------------------------
+-> Parsing ... ...
+
+ ********* Analysis Statistics *********
+                          TRAN   1
+                         PRINT   2
+                       OPTIONS   1
+ ***************************************
+-> Initializing ... ...
+ibis parse start: file = microsemi_sas4pcie4_tx_without.ibs, model = microsemi_sas4pcie4_tx, typ = 1
+[WARN] unsupported keyword: [temperature_range]
+[WARN] unsupported keyword: [voltage_range]
+ibis info: model = microsemi_sas4pcie4_tx, type = Output, power = 0, typ = 1, r pkg = 0, l pkg = 0, c pkg = 0, c comp = 2.62e-13, power clamp (size) = 3, ground clamp (size) = 3, pull up (size) = 3, pull down (size) = 3, ramp rising dv = 0.343, ramp rising dt = 1.67e-11, ramp falling dv = 0.343, ramp falling dt = 1.67e-11
+ibis parse finish successfully.
+ibis parse start: file = microsemi_sas4pcie4_tx_without.ibs, model = microsemi_sas4pcie4_tx, typ = 1
+[WARN] unsupported keyword: [temperature_range]
+[WARN] unsupported keyword: [voltage_range]
+ibis info: model = microsemi_sas4pcie4_tx, type = Output, power = 0, typ = 1, r pkg = 0, l pkg = 0, c pkg = 0, c comp = 2.62e-13, power clamp (size) = 3, ground clamp (size) = 3, pull up (size) = 3, pull down (size) = 3, ramp rising dv = 0.343, ramp rising dt = 1.67e-11, ramp falling dv = 0.343, ramp falling dt = 1.67e-11
+ibis parse finish successfully.
+>>> Normal mode enabled
+
+*********  Circuit Statistics  *********
+                         nodes   4
+Circuit element:
+                      resistor   2       
+                       vsource   2       
+                 x:ibis output   2       
+                         total   6
+***************** END ******************
+
+-> Doing analyses ... ...
+***********************************************************
+             Transient Analysis Begin                   
+***********************************************************
+>>> DC CPU time 0s, wall time 0.0456914s
+
+Important parameter values:
+    start time = 0
+    stop time = 1e-08
+    starting time step = 1e-14
+    minimum time step = 1e-15
+    maximum time step = 1e-11
+    problem size = 6
+    accurate flag = 0
+    maximum iteration = 10
+Auto Solver Configuration:
+one configuration is done ... ... 
+one configuration is done ... ... 
+one configuration is done ... ... 
+one configuration is done ... ... 
+Running transient from 0.000e+00 to 1.000e-08.
+[ERROR] "Hang up" signal was received from the kill, sigsend or raise.
+ibis info: model = microsemi_sas4pcie4_tx, type = Output, power = 0, typ = 1, r pkg = 0, l pkg = 0, c pkg = 0, c comp = 2.62e-13, power clamp (size) = 3, ground clamp (size) = 3, pull up (size) = 3, pull down (size) = 3, ramp rising dv = 0.343, ramp rising dt = 1.67e-11, ramp falling dv = 0.343, ramp falling dt = 1.67e-11
+ibis parse finish successfully.
+>>> Normal mode enabled
+
+*********  Circuit Statistics  *********
+                         nodes   4
+Circuit element:
+                      resistor   2       
+                       vsource   2       
+                 x:ibis output   2       
+                         total   6
+***************** END ******************
+
+-> Doing analyses ... ...
+***********************************************************
+             Transient Analysis Begin                   
+***********************************************************
+>>> DC CPU time 0s, wall time 0.0456914s
+
+Important parameter values:
+    start time = 0
+    stop time = 1e-08
+    starting time step = 1e-14
+    minimum time step = 1e-15
+    maximum time step = 1e-11
+    problem size = 6
+    accurate flag = 0
+    maximum iteration = 10
+Auto Solver Configuration:
+one configuration is done ... ... 
+one configuration is done ... ... 
+one configuration is done ... ... 
+one configuration is done ... ... 
+Running transient from 0.000e+00 to 1.000e-08.
+[ERROR] "Hang up" signal was received from the kill, sigsend or raise.
+[ERROR] "Hang up" signal was received from the kernel.
