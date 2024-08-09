@@ -95,20 +95,50 @@ int findNodePosition(const std::string& node1, const std::vector<std::string>& a
     }  
     return -1; // -1 表示未找到  
 } 
-
+  
 // 函数，找出每个节点连接的边
 std::map<std::string, std::vector<std::pair<Edge, std::string>>> findEdgesForNodes(const std::vector<Edge>& edges) {  
     std::map<std::string, std::vector<std::pair<Edge, std::string>>> nodeEdges;
     for (const auto& edge : edges) {
         if (!edge.type.empty()) {
             // 添加到 from 连接
-            nodeEdges[edge.from].emplace_back(edge, "from");
+            nodeEdges[edge.from].emplace_back(edge, "0");
             // 添加到 to 连接
-            nodeEdges[edge.to].emplace_back(edge, "to");
+            nodeEdges[edge.to].emplace_back(edge, "1");
         }
     }
     return nodeEdges;  
 } 
+
+// 函数，生成每个节点下所有边的两两配对  
+void printEdgePairs(const std::map<std::string, std::vector<std::pair<Edge, std::string>>>& nodeEdges) {  
+    for (const auto& node : nodeEdges) {  
+        std::cout << "Node: " << node.first << "\n";        
+        const auto& edgesInfo = node.second;  
+        size_t count = edgesInfo.size();        
+        for (size_t i = 0; i < count; ++i) {  
+            for (size_t j = i + 1; j < count; ++j) {  
+                // 两条边的配对  
+                const Edge& edge1 = edgesInfo[i].first;  
+                const Edge& edge2 = edgesInfo[j].first;
+                const std::string& position1 = edgesInfo[i].second;
+                const std::string& position2 = edgesInfo[j].second;
+                std::cout << edge1.component << ", "<< position1 << ", " << edge2.component << ", " << position2<< "\n";
+                /*
+                std::cout << "  Pair: ("   
+                          << edge1.from << " -> " << edge1.to   
+                          << ") and ("   
+                          << edge2.from << " -> " << edge2.to   
+                          << ") (Components: "   
+                          << edge1.component << ", " << edge2.component   
+                          << ", Types: " << edge1.type << ", " << edge2.type   
+                          << ", Values: " << edge1.value << ", " << edge2.value
+                          << ", position1: " << position1 << "," <<"position2: " << position2
+                          << ")\n";*/
+            }  
+        }  
+    }  
+}
 
 int main(int argc, char *argv[]) {
     std::vector<std::string> temp1(argc);
@@ -322,8 +352,10 @@ int main(int argc, char *argv[]) {
                 std::cout << "  Edge: " << edge.from << " -> " << edge.to
                         << " (Type: " << edge.type << ", Value: " << edge.value<< ", component: " << edge.component
                         << ") " << position << "\n";
-            }  
-        }  
+            }
+        }
+        // 输出结果  
+        printEdgePairs(nodeEdges);  
     }
   return 1;
 }
