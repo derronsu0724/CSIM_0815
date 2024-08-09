@@ -241,14 +241,14 @@ int main(int argc, char *argv[]) {
                         for (const auto &component : subcircuit.components) {
                             std::string temp_node1,temp_node2;
                             if(findNodePosition(component.from,subcircuit.external_nodes) !=-1){
-                            temp_node1=a1[findNodePosition(component.from,subcircuit.external_nodes)];
+                                temp_node1=a1[findNodePosition(component.from,subcircuit.external_nodes)];
                             } else{
-                            temp_node1=component.from;
+                                temp_node1=component.from;
                             }
                             if(findNodePosition(component.to,subcircuit.external_nodes) !=-1){
-                            temp_node2=a1[findNodePosition(component.to,subcircuit.external_nodes)];
+                                temp_node2=a1[findNodePosition(component.to,subcircuit.external_nodes)];
                             } else{
-                            temp_node2=component.to;
+                                temp_node2=component.to;
                             }
                             edges.push_back({temp_node1, temp_node2, component.component+"_"+subcircuit.name, component.type, component.value});
                         }
