@@ -153,6 +153,9 @@ void printEdgePairs(const std::map<std::string, std::vector<std::pair<Edge, std:
 
 static void DCCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges)
 {
+        csim::ModelEntry *e_R = csim::ModelLoader::load(resistorLibrary);
+        csim::ModelEntry *e_VDC = csim::ModelLoader::load(VDCLibrary);
+        csim::Circuit *circuit = new csim::Circuit();
         // 打印节点
         std::cout << "node:" ;
         for (const auto &node : nodes) {  
@@ -165,10 +168,15 @@ static void DCCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges
             if (edge.type.empty()) {
                 std::cout << edge.component << ": " << edge.from << " -> " << edge.to   
                         << " (value: " << edge.value << ")" << std::endl;  
-            } else {
-                std::cout << edge.component << ": " << edge.from << " -> " << edge.to   
-                        << " (type: " << edge.type << ", value: " << edge.value << ")" << std::endl;  
-            }  
+            } else if (edge.type == "DC") {            
+                std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value << ")" << std::endl;
+            } else if (edge.type == "resistor") {            
+                std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value << ")" << std::endl;
+            } else if (edge.type == "capacitor") {            
+                std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value << ")" << std::endl;
+            } else if (edge.type == "inductor") {            
+                std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value << ")" << std::endl;
+            }
         }
         // 调用函数  
         std::map<std::string, std::vector<std::pair<Edge, std::string>>> nodeEdges = findEdgesForNodes(edges);
