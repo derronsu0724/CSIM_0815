@@ -166,8 +166,7 @@ static void DCCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges
         std::cout << "\n edge:" << std::endl;
         for (const auto &edge : edges) {
             if (edge.type.empty()) {
-                std::cout << edge.component << ": " << edge.from << " -> " << edge.to   
-                        << " (value: " << edge.value << ")" << std::endl;  
+                std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (value: " << edge.value << ")" << std::endl;  
             } else if (edge.type == "DC") {            
                 std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value << ")" << std::endl;
             } else if (edge.type == "resistor") {            
