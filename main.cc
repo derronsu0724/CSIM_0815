@@ -96,6 +96,20 @@ int findNodePosition(const std::string& node1, const std::vector<std::string>& a
     return -1; // -1 表示未找到  
 } 
 
+// 函数，找出每个节点连接的边
+std::map<std::string, std::vector<std::pair<Edge, std::string>>> findEdgesForNodes(const std::vector<Edge>& edges) {  
+    std::map<std::string, std::vector<std::pair<Edge, std::string>>> nodeEdges;
+    for (const auto& edge : edges) {
+        if (!edge.type.empty()) {
+            // 添加到 from 连接
+            nodeEdges[edge.from].emplace_back(edge, "from");
+            // 添加到 to 连接
+            nodeEdges[edge.to].emplace_back(edge, "to");
+        }
+    }
+    return nodeEdges;  
+} 
+
 int main(int argc, char *argv[]) {
     std::vector<std::string> temp1(argc);
     for (int i = 0; i < argc; i++) {
@@ -297,21 +311,19 @@ int main(int argc, char *argv[]) {
                         << " (type: " << edge.type << ", value: " << edge.value << ")" << std::endl;  
             }  
         }
-        int index1 = 0; // 序号计数器
-        for (const auto &ii : nodes) {
-            if (!ii.empty()) { // 检查字符串是否为空  
-                int index2 = 0; // 序号计数器
-                for (const auto &edge : edges) {
-                    if((ii == edge.from) || (ii == edge.to))
-                    {
-                        std::cout <<index1<<","<<index2<<","<< ii<<",edge.from:"<< edge.from<<",edge.to:" << ","<< edge.to << "\n";
-                    }
-                    index2++;              
-                }
-                index1++; 
-            } 
-        }
-
+        // 调用函数  
+        std::map<std::string, std::vector<std::pair<Edge, std::string>>> nodeEdges = findEdgesForNodes(edges);  
+        // 输出结果  
+        for (const auto& node : nodeEdges) {  
+            std::cout << "Node: " << node.first << "\n";
+            for (const auto& edgeInfo : node.second) {
+                const Edge& edge = edgeInfo.first;
+                const std::string& position = edgeInfo.second;
+                std::cout << "  Edge: " << edge.from << " -> " << edge.to
+                        << " (Type: " << edge.type << ", Value: " << edge.value<< ", component: " << edge.component
+                        << ") " << position << "\n";
+            }  
+        }  
     }
   return 1;
 }
