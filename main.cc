@@ -107,6 +107,17 @@ std::map<std::string, std::vector<std::pair<Edge, std::string>>> findEdgesForNod
             nodeEdges[edge.to].emplace_back(edge, "1");
         }
     }
+    // 输出结果  
+    for (const auto& node : nodeEdges) {  
+        std::cout << "Node: " << node.first << "\n";
+        for (const auto& edgeInfo : node.second) {
+                const Edge& edge = edgeInfo.first;
+                const std::string& position = edgeInfo.second;
+                std::cout << "  Edge: " << edge.from << " -> " << edge.to
+                        << " (Type: " << edge.type << ", Value: " << edge.value<< ", component: " << edge.component
+                        << ") " << position << "\n";
+        }
+    }
     return nodeEdges;  
 } 
 
@@ -196,7 +207,7 @@ int main(int argc, char *argv[]) {
         delete circuit;
         delete e_R;
         delete e_VDC;
-        std::cout   << __LINE__  <<"\n";
+
     } else if  (temp1.at(1) == "2") {
         Graph graph(6);      
         graph.addEdge(0, 1);
@@ -343,17 +354,7 @@ int main(int argc, char *argv[]) {
         }
         // 调用函数  
         std::map<std::string, std::vector<std::pair<Edge, std::string>>> nodeEdges = findEdgesForNodes(edges);  
-        // 输出结果  
-        for (const auto& node : nodeEdges) {  
-            std::cout << "Node: " << node.first << "\n";
-            for (const auto& edgeInfo : node.second) {
-                const Edge& edge = edgeInfo.first;
-                const std::string& position = edgeInfo.second;
-                std::cout << "  Edge: " << edge.from << " -> " << edge.to
-                        << " (Type: " << edge.type << ", Value: " << edge.value<< ", component: " << edge.component
-                        << ") " << position << "\n";
-            }
-        }
+
         // 输出结果  
         printEdgePairs(nodeEdges);  
     }
