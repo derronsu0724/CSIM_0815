@@ -151,7 +151,7 @@ void printEdgePairs(const std::map<std::string, std::vector<std::pair<Edge, std:
     }
 }
 
-static void OPCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges)
+static void OPCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges,std::vector<std::string> probe_names)
 {
         int ret = 0;
         csim::ModelEntry *e_R = csim::ModelLoader::load(resistorLibrary);
@@ -168,6 +168,10 @@ static void OPCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges
         std::cout << std::endl;*/
         // 打印边
         // std::cout << "\n edge:" << std::endl;
+        // 输出结果  
+        for (const auto& name : probe_names) {  
+            std::cout << "Probe name: " << name << std::endl;  
+        }
         for (const auto &edge : edges) {
             if (edge.type.empty()) {
                 // std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (value: " << edge.value << ")" << std::endl;  
@@ -436,13 +440,9 @@ int main(int argc, char *argv[]) {
                 std::cout << component.component << ": " << component.from << " -> " << component.to  
                         << " (type: " << component.type << ", value: " << component.value << ")" << std::endl;  
             }  
-        }
-        
-        // 输出结果  
-        for (const auto& name : probe_names) {  
-            std::cout << "Probe name: " << name << std::endl;  
         }*/
-        OPCircuit_helper(nodes,edges);
+
+        OPCircuit_helper(nodes,edges, probe_names);
     }
   return 1;
 }
