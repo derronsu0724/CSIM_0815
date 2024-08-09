@@ -191,21 +191,39 @@ static void DCCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges
         // 调用函数  
         std::map<std::string, std::vector<std::pair<Edge, std::string>>> nodeEdges = findEdgesForNodes(edges);
         printEdgePairs(nodeEdges);
-    for (const auto& node : nodeEdges) {  
-        std::cout << "Node: " << node.first << "\n";
-        const auto& edgesInfo = node.second;
-        size_t count = edgesInfo.size();        
-        for (size_t i = 0; i < count; ++i) {  
-            for (size_t j = i + 1; j < count; ++j) {  
-                // 两条边的配对  
-                const Edge& edge1 = edgesInfo[i].first;  
-                const Edge& edge2 = edgesInfo[j].first;
-                const std::string& position1 = edgesInfo[i].second;
-                const std::string& position2 = edgesInfo[j].second;
-                std::cout << edge1.component << ", "<< position1 << ", " << edge2.component << ", " << position2<< "\n";
+        ret = circuit->netlist()->prepare();
+        for (const auto& node : nodeEdges) {  
+            std::cout << "Node: " << node.first << "\n";
+            const auto& edgesInfo = node.second;
+            size_t count = edgesInfo.size();        
+            for (size_t i = 0; i < count; ++i) {  
+                for (size_t j = i + 1; j < count; ++j) {  
+                    // 两条边的配对  
+                    const Edge& edge1 = edgesInfo[i].first;  
+                    const Edge& edge2 = edgesInfo[j].first;
+                    const std::string& position1 = edgesInfo[i].second;
+                    const std::string& position2 = edgesInfo[j].second;
+                    std::cout << edge1.component << ", "<< position1 << ", " << edge2.component << ", " << position2<< "\n";                            
+                    ret = circuit->netlist()->wire(edge1.component.c_str(), std::stoi(position1), edge2.component.c_str(), std::stoi(position2));            
+                }
             }
         }
-    }
+        ret = circuit->netlist()->generateNodes();
+        /* DC analysis */
+        csim::AnalyzerBase *analyzer = csim::Analyzers::createInstance("OP", circuit);
+        csim::Dataset dset;
+        ret = analyzer->analyze(&dset);
+        /* Get nodes */
+        unsigned int n_gnd, n1;
+        ret = circuit->netlist()->getTermlNode("R1", 1, &n1);
+        ret = circuit->netlist()->getTermlNode("V1", 1, &n_gnd);
+        /* Check status of Circuit object */
+        csimModel::MComplex volt = circuit->getNodeVolt(n1) - circuit->getNodeVolt(n_gnd);
+        std::cout  <<"volt:" << std::abs(volt)  <<"\n";
+        // EXPECT_LT(std::abs(csimModel::MComplex(4.0, 0) - volt), epsilon_linear);
+        delete circuit;
+        delete e_R;
+        delete e_VDC;
 }
 
 int main(int argc, char *argv[]) {
