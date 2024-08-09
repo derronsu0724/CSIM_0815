@@ -361,26 +361,24 @@ int main(int argc, char *argv[]) {
                 fun1(line,node_component,type,value);
                 current_subcircuit.components.push_back({node_component[0], node_component[1], component, type, value});  
             }
-            else if (component == ".probe") {
-                
+            else if (component == ".probe") {                
                 // 查找 .probe 的开始位置
-                size_t probe_pos = line.find(".probe");                
-                // 确保找到了 .probe  
-                if (probe_pos != std::string::npos) {  
-                    // 从 .probe 后面开始查找 v(  
-                    size_t start_pos = line.find("v(", probe_pos);  
-                    while (start_pos != std::string::npos) {  
-                        size_t end_pos = line.find(")", start_pos);  
-                        if (end_pos != std::string::npos) {  
-                            std::string variable = line.substr(start_pos + 2, end_pos - start_pos - 2);  
-                            probe_names.push_back(variable); // 将找到的变量保存到 vector 中  
-                            start_pos = line.find("v(", end_pos);  
-                        } else {  
-                            break;  
-                        }  
-                    }  
+                size_t probe_pos = line.find(".probe");
+                // 确保找到了 .probe
+                if (probe_pos != std::string::npos) {
+                    // 从 .probe 后面开始查找 v(
+                    size_t start_pos = line.find("v(", probe_pos);
+                    while (start_pos != std::string::npos) {
+                        size_t end_pos = line.find(")", start_pos);
+                        if (end_pos != std::string::npos) {
+                            std::string variable = line.substr(start_pos + 2, end_pos - start_pos - 2);
+                            probe_names.push_back(variable); // 将找到的变量保存到 vector 中
+                            start_pos = line.find("v(", end_pos);
+                        } else {
+                            break;
+                        }
+                    }
                 }
-
             }
             else if (component[0] == 'X') { 
                 //std::cout   <<__LINE__ <<"\n";
