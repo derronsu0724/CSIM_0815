@@ -197,33 +197,30 @@ int main(int argc, char *argv[]) {
             return 1;  
         }  
 
-        while (std::getline(netlist, line)) {  
+        while (std::getline(netlist, line)) {
             // 跳过注释行  
             if (line.empty() || line[0] == '*') continue;
             std::istringstream iss(line);
             std::string component;
-            iss >> component; // 读取元件名称        
+            iss >> component; // 读取元件名称
             std::vector<std::string> node_component;
             std::string type;  // 存储类型  
             std::string value; // 存储元件的值
             // 解析节点和元件值
-            if (component == ".SUBCKT") { // 检测子电路开始  
-                in_subcircuit = true;  
-                iss >> current_subcircuit.name;  
-                std::string node;  
-                while (iss >> node) {  
-                    current_subcircuit.external_nodes.push_back(node);  
+            if (component == ".SUBCKT") { // 检测子电路开始
+                in_subcircuit = true;
+                iss >> current_subcircuit.name;
+                std::string node;
+                while (iss >> node) {
+                    current_subcircuit.external_nodes.push_back(node);
                 }
             } else if (in_subcircuit && component == ".ENDS") { // 子电路结束  
-                subcircuits.push_back(current_subcircuit);  
-                current_subcircuit = Subcircuit(); // 清空当前子电路  
-                in_subcircuit = false;  
-            } else if (in_subcircuit) { // 子电路内部元件  
-                // 在这里继续解析元件  
+                subcircuits.push_back(current_subcircuit);
+                current_subcircuit = Subcircuit(); // 清空当前子电路
+                in_subcircuit = false;
+            } else if (in_subcircuit) {// 子电路内部元件  
                 fun1(line,node_component,type,value);
                 current_subcircuit.components.push_back({node_component[0], node_component[1], component, type, value});  
-                //current_subcircuit.nodes.push_back(node_component[0]);  
-                //current_subcircuit.nodes.push_back(node_component[1]);  
             }
             else if (component[0] == 'X') { 
                 //std::cout   <<__LINE__ <<"\n";
