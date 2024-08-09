@@ -103,18 +103,18 @@ int main(int argc, char *argv[]) {
     }
     if(temp1.at(1) == "1")
     {
-      std::cout   <<__LINE__  <<"\n";
-    /*
-     * Circuit diagram
-     *         20ohm           10ohm
-     *     0 .______. 1    0 .______. 1
-     *  +---+|__R1__|+------+|__R2__|+---+
-     *  |                V1              |
-     *  |          0    ,-.    1         |
-     *  +--------------(---)-------------+
-     *                  `-'
-     *                  12V
-     */
+        std::cout   <<__LINE__  <<"\n";
+        /*
+        * Circuit diagram
+        *         20ohm           10ohm
+        *     0 .______. 1    0 .______. 1
+        *  +---+|__R1__|+------+|__R2__|+---+
+        *  |                V1              |
+        *  |          0    ,-.    1         |
+        *  +--------------(---)-------------+
+        *                  `-'
+        *                  12V
+        */
         int ret = 0;
         csim::ModelEntry *e_R = csim::ModelLoader::load(resistorLibrary);
         csim::ModelEntry *e_VDC = csim::ModelLoader::load(VDCLibrary);
@@ -154,24 +154,22 @@ int main(int argc, char *argv[]) {
         delete e_VDC;
         std::cout   << __LINE__  <<"\n";
     } else if  (temp1.at(1) == "2") {
-          Graph graph(6);      
-          graph.addEdge(0, 1);
-          graph.addEdge(0, 2);
-          graph.addEdge(1, 3);
-          graph.addEdge(1, 4);
-          graph.addEdge(2, 5);      
-          std::cout << "DFS traversal: ";
-          graph.DFS(0);
+        Graph graph(6);      
+        graph.addEdge(0, 1);
+        graph.addEdge(0, 2);
+        graph.addEdge(1, 3);
+        graph.addEdge(1, 4);
+        graph.addEdge(2, 5);      
+        std::cout << "DFS traversal: ";
+        graph.DFS(0);
     }
     else if  (temp1.at(1) == "3") {
-        std::ofstream netlist("circuit.sp");  
-
+        std::ofstream netlist("circuit.sp");
         // 检查文件是否成功打开  
         if (!netlist) {  
-            std::cerr << "无法打开文件！" << std::endl;  
-            return 1;  
-        }  
-
+            std::cerr << "无法打开文件！" << std::endl;
+            return 1;
+        }
         // 写入网表内容  
         netlist << "* Sample HSPICE Netlist\n";  
         netlist << "V1 1 0 DC 5V\n";           // 电压源  
@@ -181,24 +179,19 @@ int main(int argc, char *argv[]) {
         // netlist << ".model NMOS NMOS (VTO=0.7)\n"; // NMOS模型定义  
          // netlist << "M1 3 1 0 0 NMOS W=10u L=1u\n"; // 晶体管  
         netlist << ".tran 0.1ms 10ms\n";       // 转换分析指令  
-        netlist << ".end\n";                   // 网表结束  
-
+        netlist << ".end\n";                   // 网表结束
         // 关闭文件  
-        netlist.close();  
-
-        std::cout << "finish" << std::endl;  
+        netlist.close();
+        std::cout << "finish" << std::endl;
     }
     else if  (temp1.at(1) == "4") {
-  
         std::ifstream netlist("circuit.sp");  
         std::string line; 
         std::vector<Subcircuit> subcircuits; // 存储所有子电路
         Subcircuit current_subcircuit;  
-        bool in_subcircuit = false;  
-
+        bool in_subcircuit = false;
         std::set<std::string> nodes;  // 存储节点  
-        std::vector<Edge> edges;       // 存储边  
-
+        std::vector<Edge> edges;       // 存储边
         if (!netlist) {  
             std::cerr << "Unable to open file!" << std::endl;  
             return 1;  
@@ -306,8 +299,21 @@ int main(int argc, char *argv[]) {
                 std::cout << edge.component << ": " << edge.from << " -> " << edge.to   
                         << " (type: " << edge.type << ", value: " << edge.value << ")" << std::endl;  
             }  
-        } 
-
+        }
+        int index1 = 0; // 序号计数器
+        for (const auto &ii : nodes) {
+            if (!ii.empty()) { // 检查字符串是否为空  
+                int index2 = 0; // 序号计数器
+                for (const auto &edge : edges) {
+                    if((ii == edge.from) || (ii == edge.to))
+                    {
+                        std::cout <<index1<<","<<index2<<","<< ii<<",edge.from:"<< edge.from<<",edge.to:" << ","<< edge.to << "\n";
+                    }
+                    index2++;              
+                }
+                index1++; 
+            } 
+        }
 
     }
   return 1;
