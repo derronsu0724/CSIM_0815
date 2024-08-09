@@ -353,10 +353,8 @@ int main(int argc, char *argv[]) {
             }  
         }
         // 调用函数  
-        std::map<std::string, std::vector<std::pair<Edge, std::string>>> nodeEdges = findEdgesForNodes(edges);  
-
-        // 输出结果  
-        printEdgePairs(nodeEdges);  
+        std::map<std::string, std::vector<std::pair<Edge, std::string>>> nodeEdges = findEdgesForNodes(edges);
+        printEdgePairs(nodeEdges);
     }
   return 1;
 }
