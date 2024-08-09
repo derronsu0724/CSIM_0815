@@ -33,7 +33,7 @@ namespace csim
      * and the phase of V and I is equal.
      */
     static void tstACLinearCircuit_helper(const char *fspace, double fstart, double fstop) {
-        std::cout   <<__LINE__ <<"\n"<<tstACLinearCircuit_helper <<"\n";
+
         int ret = 0;
         ModelEntry *e_R = ModelLoader::load(resistorLibrary);
         ASSERT_NE(nullptr, e_R);
