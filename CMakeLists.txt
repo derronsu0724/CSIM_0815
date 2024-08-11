@@ -77,9 +77,12 @@ if (enable_testcases)
 endif ()
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/doc")
-
+set(SPDLOG_SOURCES
+ ${CMAKE_CURRENT_LIST_DIR}/bin/spdlog/lib/libspdlogd.a
+)
 add_executable(test2
     "${CMAKE_CURRENT_SOURCE_DIR}/main.cc"
 
 )
-target_link_libraries(test2 pthread csim)
+target_include_directories(test2 PUBLIC ${CMAKE_CURRENT_LIST_DIR}/bin/spdlog/include )
+target_link_libraries(test2 pthread csim ${SPDLOG_SOURCES})
