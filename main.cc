@@ -14,6 +14,9 @@
 #include <fstream>  
 #include <string>  
 #include <boost/regex.hpp>
+#include <spdlog/spdlog.h> // NOLINT
+#include <spdlog/sinks/rotating_file_sink.h>  // NOLINT
+#include "spdlog/sinks/stdout_color_sinks.h"  // NOLINT
 std::vector<std::string> split_space(const std::string& text) {
   boost::regex ws_re("\\s+");
   std::vector<std::string> vector_(
@@ -268,8 +271,72 @@ static int ACLinearCircuit(std::set<std::string> nodes,std::vector<Edge> edges,c
     int ret = 0;
     return ret;
 }
+void testSpdLog() {
+	// 文件日志定义，设定日志最大100M，且最多保留10个
+	auto fileLogger = spdlog::rotating_logger_mt("fileLogger", "log.log", 1024 * 1024 * 100, 10);
+	//大于等于该等级的将被输出
+	fileLogger->set_level(spdlog::level::trace);
+ 
+	//定义输出格式
+	spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l]  [%s->%!->%#]  [%v]");  //log类型 文件->函数名->行数   输出内容
+	spdlog::set_default_logger(fileLogger);
+ 
+	for (int i = 0; i < 2; ++i) {
+		SPDLOG_LOGGER_TRACE(fileLogger, "trace输出：{}-{}", i, "测试trace");
+		SPDLOG_LOGGER_DEBUG(fileLogger, "debug输出：{}-{}", i, "测试debug");
+		SPDLOG_LOGGER_INFO(fileLogger, "info输出：{}-{}", i, "测试info");
+		SPDLOG_LOGGER_WARN(fileLogger, "warn输出：{}-{}", i, "测试warn");
+		SPDLOG_LOGGER_ERROR(fileLogger, "Some error message");
+		SPDLOG_LOGGER_CRITICAL(fileLogger, "Some critical message");
+	}
+}
+
+void testMultiLog() {
+	//文件sink
+	auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_st>("logs.log", 1024 * 1024 * 100, 10);
+	file_sink->set_level(spdlog::level::debug);
+	file_sink->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l]  [%s->%!->%#]  [%v]");
+ 
+	//控制台sink
+	auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_st>();
+	console_sink->set_level(spdlog::level::debug);
+	console_sink->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l]  [%s->%!->%#]  [%v]");
+ 
+	std::vector<spdlog::sink_ptr> sinks;
+	sinks.push_back(console_sink);
+	sinks.push_back(file_sink);
+ 
+	auto multiLogger = std::make_shared<spdlog::logger>("multiSink", begin(sinks), end(sinks));
+	multiLogger->set_level(spdlog::level::debug);
+	spdlog::set_default_logger(multiLogger);
+ 
+	for (int i = 0; i < 2; ++i) {
+		SPDLOG_LOGGER_TRACE(multiLogger, "trace输出：{}-{}", i, "测试trace");
+		SPDLOG_LOGGER_DEBUG(multiLogger, "debug输出：{}-{}", i, "测试debug");
+		SPDLOG_LOGGER_INFO(multiLogger, "info输出：{}-{}", i, "测试info");
+		SPDLOG_LOGGER_WARN(multiLogger, "warn输出：{}-{}", i, "测试warn");
+		SPDLOG_LOGGER_ERROR(multiLogger, "Some error message");
+		SPDLOG_LOGGER_CRITICAL(multiLogger, "Some critical message");
+	}
+}
+
+
 
 int main(int argc, char *argv[]) {
+    // 创建控制台日志器  
+    //auto console = spdlog::stdout_color_mt("console");
+    // 创建一个文件日志器，指定日志文件的路径  
+    // auto file_logger = spdlog::basic_logger_mt("file_logger", "logs/log.txt"); 
+    //console->set_pattern("%^[%H:%M:%S] %v%$");  // 设置日志格式  
+    //console->info("Hello, {}!", "world");  // 输出信息级日志  
+    //console->warn("Warning message");       // 输出警告级日志  
+    //console->error("Error occurred: {}", 404); // 输出错误级日志  
+    // 使用默认日志器  
+    auto console = spdlog::stdout_color_mt("console");    
+    //auto err_logger = spdlog::stderr_color_mt("stderr");    
+    spdlog::get("console")->info("loggers can be retrieved from a global registry using the spdlog::get(logger_name)");
+    
+	testMultiLog();
     std::vector<std::string> temp1(argc);
     for (int i = 0; i < argc; i++) {
         temp1.at(i) = argv[i];
