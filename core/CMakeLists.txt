@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
 project(csim)
-
+include_directories("D:/CSIM_sudl/bin/spdlog/include") # 添加 include 目录 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/models")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/utils")
 
@@ -38,6 +38,8 @@ set(SRCS
     "${CMAKE_CURRENT_SOURCE_DIR}/Circuit.cc"
     "${CMAKE_CURRENT_SOURCE_DIR}/Netlist.cc"
     "${CMAKE_CURRENT_SOURCE_DIR}/Dataset.cc"
+    "${CMAKE_CURRENT_SOURCE_DIR}/analyzer/log.cc"
+	
 )
 
 # Generate lexior

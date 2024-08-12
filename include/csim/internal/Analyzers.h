@@ -85,6 +85,7 @@ namespace csim
         Circuit *m_circuit;
         std::vector<unsigned int> m_interestNodes;
         std::vector<unsigned int> m_interestBranches;
+        std::string m_log="log_sim.txt";
     };
 
     class Analyzers

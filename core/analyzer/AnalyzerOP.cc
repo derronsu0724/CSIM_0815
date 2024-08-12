@@ -21,7 +21,7 @@
 #include "csim/internal/Circuit.h"
 #include "csim/internal/Dataset.h"
 #include "AnalyzerOP.h"
-
+#include "log.h"
 namespace csim
 {
 
@@ -38,6 +38,8 @@ namespace csim
         /*
          * Format data set
          */
+        testSpdLog("test");
+        testMultiLog("test");
         dataset->clear();
         dataset->setName("DC quiescent operating point analysis");
         unsigned int N = getNumInterestNodes(), M = getNumInterestBranches();

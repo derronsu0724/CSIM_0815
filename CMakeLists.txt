@@ -82,7 +82,8 @@ set(SPDLOG_SOURCES
 )
 add_executable(test2
     "${CMAKE_CURRENT_SOURCE_DIR}/main.cc"
+	"${CMAKE_CURRENT_SOURCE_DIR}/core/analyzer/log.cc"
 
 )
-target_include_directories(test2 PUBLIC ${CMAKE_CURRENT_LIST_DIR}/bin/spdlog/include )
+target_include_directories(test2 PUBLIC ${CMAKE_CURRENT_LIST_DIR}/core/analyzer ${CMAKE_CURRENT_LIST_DIR}/bin/spdlog/include )
 target_link_libraries(test2 pthread csim ${SPDLOG_SOURCES})
