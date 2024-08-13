@@ -1,4 +1,4 @@
 #include <string>  
 
-void testSpdLog(std::string str1) ;
-void testMultiLog(std::string str1) ;
+void testSpdLog(const std::string& logFileName,std::string str1) ;
+void testMultiLog(const std::string& logFileName,std::string str1) ;

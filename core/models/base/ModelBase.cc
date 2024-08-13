@@ -118,6 +118,16 @@ namespace csimModel
         return m_nodes.size() - m_numTermls;
     }
 
+    std::vector<unsigned int> ModelBase::get_m_nodes()
+    {
+        return m_nodes;
+    }
+
+    std::vector<unsigned int> ModelBase::get_m_branches()
+    {
+        return m_branches;
+    }
+
     void ModelBase::setNode(unsigned int idx, unsigned int node)
     {
         m_nodes[idx] = node;

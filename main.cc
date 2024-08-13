@@ -216,7 +216,7 @@ static void OPCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges
                 ret = circuit->netlist()->addComponent(edge.component.c_str(), e_L);
                 ret = circuit->netlist()->configComponent(edge.component.c_str(), "L", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(std::stod(edge.value)));
             }
-        }
+        }        
         // 调用函数  
         std::map<std::string, std::vector<std::pair<Edge, std::string>>> nodeEdges = findEdgesForNodes(edges);
         // printEdgePairs(nodeEdges);
@@ -273,8 +273,6 @@ static int ACLinearCircuit(std::set<std::string> nodes,std::vector<Edge> edges,c
 
 
 int main(int argc, char *argv[]) {
-    //testSpdLog("test");
-	//testMultiLog("test");
     std::vector<std::string> temp1(argc);
     for (int i = 0; i < argc; i++) {
         temp1.at(i) = argv[i];
@@ -332,37 +330,6 @@ int main(int argc, char *argv[]) {
         delete e_VDC;
 
     } else if  (temp1.at(1) == "2") {
-        Graph graph(6);      
-        graph.addEdge(0, 1);
-        graph.addEdge(0, 2);
-        graph.addEdge(1, 3);
-        graph.addEdge(1, 4);
-        graph.addEdge(2, 5);      
-        std::cout << "DFS traversal: ";
-        graph.DFS(0);
-    }
-    else if  (temp1.at(1) == "3") {
-        std::ofstream netlist("circuit.sp");
-        // 检查文件是否成功打开  
-        if (!netlist) {  
-            std::cerr << "无法打开文件！" << std::endl;
-            return 1;
-        }
-        // 写入网表内容  
-        netlist << "* Sample HSPICE Netlist\n";  
-        netlist << "V1 1 0 DC 5V\n";           // 电压源  
-        netlist << "R1 1 2 1k\n";              // 电阻  
-        netlist << "C1 2 0 10n\n";             // 电容  
-        netlist << "L2 2 0 11\n"; 
-        // netlist << ".model NMOS NMOS (VTO=0.7)\n"; // NMOS模型定义  
-         // netlist << "M1 3 1 0 0 NMOS W=10u L=1u\n"; // 晶体管  
-        netlist << ".tran 0.1ms 10ms\n";       // 转换分析指令  
-        netlist << ".end\n";                   // 网表结束
-        // 关闭文件  
-        netlist.close();
-        std::cout << "finish" << std::endl;
-    }
-    else if  (temp1.at(1) == "4") {
         std::ifstream netlist("circuit.sp");  
         std::string line; 
         std::vector<Subcircuit> subcircuits; // 存储所有子电路
@@ -460,24 +427,6 @@ int main(int argc, char *argv[]) {
             }
         }  
         netlist.close();  
-        /*
-        // 打印子电路信息  
-        std::cout << "\nSubcircuits:" << std::endl;  
-        for (const auto &subcircuit : subcircuits) {  
-            std::cout << "Subcircuit: " << subcircuit.name << std::endl;  
-            std::cout << "External Nodes: ";        
-            for (const auto &node : subcircuit.external_nodes) {  
-                std::cout << node << " ";  
-            }  
-            std::cout << std::endl;  
-
-            std::cout << "Components: " << std::endl;  
-            for (const auto &component : subcircuit.components) {  
-                std::cout << component.component << ": " << component.from << " -> " << component.to  
-                        << " (type: " << component.type << ", value: " << component.value << ")" << std::endl;  
-            }  
-        }*/
-
         OPCircuit_helper(nodes,edges, probe_names);
     }
   return 1;

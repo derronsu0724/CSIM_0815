@@ -37,7 +37,7 @@ namespace csim
 
     public:
         std::string makeVarName(const char *name, unsigned int node);
-
+        std::string m_log="log_sim.txt";
         inline void addInterestNode(unsigned int node)
         {
             m_interestNodes.push_back(node);
@@ -85,7 +85,7 @@ namespace csim
         Circuit *m_circuit;
         std::vector<unsigned int> m_interestNodes;
         std::vector<unsigned int> m_interestBranches;
-        std::string m_log="log_sim.txt";
+        
     };
 
     class Analyzers

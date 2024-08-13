@@ -38,8 +38,6 @@ namespace csim
         /*
          * Format data set
          */
-        testSpdLog("test");
-        testMultiLog("test");
         dataset->clear();
         dataset->setName("DC quiescent operating point analysis");
         unsigned int N = getNumInterestNodes(), M = getNumInterestBranches();
@@ -80,6 +78,21 @@ namespace csim
     {
         for (auto &mif : circuit()->netlist()->models())
         {
+            /*auto model0 = mif.model;
+            std::string str(model0->name());
+            testMultiLog(m_log,"model0->name():"+str);
+            testMultiLog(m_log,"model0->getNumTerml():"+std::to_string(model0->getNumTerml()));
+            testMultiLog(m_log,"model0->getNumBranches():"+std::to_string(model0->getNumBranches()));
+            testMultiLog(m_log,"model0->getNumInnerNode():"+std::to_string(model0->getNumInnerNode()));
+            for(auto &a:model0->get_m_nodes())
+            {
+                testMultiLog(m_log,"prepareMNA-get_m_nodes,"+std::to_string(a));
+            }
+           for(auto &a:model0->get_m_branches())
+            {
+                testMultiLog(m_log,"prepareMNA-get_m_branches,"+std::to_string(a));
+            }
+            auto entry0 = mif.entry;*/
             UPDATE_RC(mif.model->prepareOP());
         }
         return 0;

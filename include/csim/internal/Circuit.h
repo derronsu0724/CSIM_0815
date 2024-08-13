@@ -49,6 +49,14 @@ namespace csim
         ~Circuit();
 
         /* MNA matrices */
+        csimModel::MComplex* &get_m_A() 
+        {
+            return m_A;
+        }
+        inline const unsigned int &get_m_matrixRows() const
+        {
+            return m_matrixRows;
+        }
         inline const csimModel::MComplex &getA(unsigned int row, unsigned int col) const
         {
             assert(row < m_matrixRows && col < m_matrixRows);
@@ -181,7 +189,7 @@ namespace csim
         void createMatrix(unsigned int numNodes, unsigned int numBranches);
         bool isConverged();
         double adaptStep();
-
+        std::string m_log_cir="log_cir.txt";
     private:
         csimModel::Environment *m_environment;
         unsigned int m_matrixRows;

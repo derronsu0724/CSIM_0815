@@ -70,7 +70,8 @@ namespace csimModel
         void setBranch(unsigned int idx, unsigned int branch);
         unsigned int getBranch(unsigned int idx) const;
         void setInnerNode(unsigned int innerIdx, unsigned int node);
-
+        std::vector<unsigned int> get_m_nodes();
+        std::vector<unsigned int> get_m_branches();
         /* MNA matrices */
         const MComplex &getY(unsigned int row, unsigned int col) const;
         const MComplex &getB(unsigned int row, unsigned int col) const;
