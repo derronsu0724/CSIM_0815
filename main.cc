@@ -72,25 +72,25 @@ void fun1(std::string& line,std::vector<std::string>& node,std::string& type, st
           std::string component;
           iss >> component; // 读取元件名称
           std::string node1,node2;
-          if (component[0] == 'R' ) {
+          if (std::tolower(component[0]) == 'r' ) {
               double value;
               iss >> node1 >> node2 >> value; // 读取节点和元件的值 
               type="resistor";
               //data1.push_back(value);
               data1["value"]=value;
-          } else if (component[0] == 'C') {
+          } else if (std::tolower(component[0] )== 'c') {
                 double value; 
               iss >> node1 >> node2 >> value; // 读取节点和元件的值
               type="capacitor";
               data1["value"]=value;
               //data1.push_back(value);
-          } else if (component[0] == 'L') {
+          } else if (std::tolower(component[0] )== 'l') {
               double value;
               iss >> node1 >> node2 >> value; // 读取节点和元件的值
               type="inductor";
               //data1.push_back(value);
               data1["value"]=value;
-          } else if (component[0] == 'V') { // 处理电压源 
+          } else if (std::tolower(component[0] )== 'v') { // 处理电压源 
               auto a1=split_space(line);
               double value1, value2;
               node1=a1[1];
@@ -304,9 +304,11 @@ int main(int argc, char *argv[]) {
     std::vector<std::string> temp1(argc);
     for (int i = 0; i < argc; i++) {
         temp1.at(i) = argv[i];
+        std::cout << temp1.at(i) << std::endl;
     }
-    if(temp1.at(1) == "1")  {
-        std::ifstream netlist("circuit.sp");  
+    if(argc > 1)  {
+        std::cout << temp1.at(1) << std::endl;
+        std::ifstream netlist(temp1.at(1));  
         std::string line; 
         std::vector<Subcircuit> subcircuits; // 存储所有子电路
         Subcircuit current_subcircuit;  
