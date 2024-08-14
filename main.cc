@@ -56,7 +56,7 @@ struct Edge {
     std::string to;
     std::string component;
     std::string type;
-    std::vector<double> value; // 电阻电容电感值
+    std::unordered_map<std::string, double> value; // 以名称为Key的参数值,电阻电容电感值
 };
 
 struct Subcircuit {
@@ -66,7 +66,7 @@ struct Subcircuit {
     std::vector<Edge> components; //  子电路内部元件  
 };
 
-void fun1(std::string& line,std::vector<std::string>& node,std::string& type, std::vector<double>& data1)
+void fun1(std::string& line,std::vector<std::string>& node,std::string& type, std::unordered_map<std::string, double>& data1)
 {
           std::istringstream iss(line);
           std::string component;
@@ -76,17 +76,20 @@ void fun1(std::string& line,std::vector<std::string>& node,std::string& type, st
               double value;
               iss >> node1 >> node2 >> value; // 读取节点和元件的值 
               type="resistor";
-              data1.push_back(value);
+              //data1.push_back(value);
+              data1["value"]=value;
           } else if (component[0] == 'C') {
                 double value; 
               iss >> node1 >> node2 >> value; // 读取节点和元件的值
               type="capacitor";
-              data1.push_back(value);
+              data1["value"]=value;
+              //data1.push_back(value);
           } else if (component[0] == 'L') {
               double value;
               iss >> node1 >> node2 >> value; // 读取节点和元件的值
               type="inductor";
-              data1.push_back(value);
+              //data1.push_back(value);
+              data1["value"]=value;
           } else if (component[0] == 'V') { // 处理电压源 
               auto a1=split_space(line);
               double value1, value2;
@@ -95,8 +98,10 @@ void fun1(std::string& line,std::vector<std::string>& node,std::string& type, st
               value1=std::stod(a1[4]);
               value2=std::stod(a1[6]);              
               type="voltage";
-              data1.push_back(value1);
-              data1.push_back(value2);
+              //data1.push_back(value1);
+              //data1.push_back(value2);
+              data1["DC"]=value1;
+              data1["AC"]=value2;
           }
           node.push_back(node1);
           node.push_back(node2);
@@ -129,7 +134,7 @@ std::map<std::string, std::vector<std::pair<Edge, std::string>>> findEdgesForNod
                 const Edge& edge = edgeInfo.first;
                 const std::string& position = edgeInfo.second;
                 std::cout << "  Edge: " << edge.from << " -> " << edge.to
-                        << " (Type: " << edge.type << ", Value: " << edge.value[0]<< ", component: " << edge.component
+                        << " (Type: " << edge.type << ", component: " << edge.component
                         << ") " << position << "\n";
         }
     }
@@ -204,31 +209,31 @@ static void OPCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges
         // 打印节点
         /*
         std::cout << "node:" ;
-        for (const auto &node : nodes) {  
+        for (auto &node : nodes) {  
             std::cout << node << ",";
         }
         std::cout << std::endl;*/
         // 打印边
         // std::cout << "\n edge:" << std::endl;
-        for (const auto &edge : edges) {
+        for (auto &edge : edges) {
             if (edge.type.empty()) {
                 // std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (value: " << edge.value << ")" << std::endl;  
             } else if (edge.type == "voltage") {            
-                //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value1: " << edge.value[0]<< ", value2: " << edge.value[1] << ")" << std::endl;
+                //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value1: " << edge.value["DC"]<< ", value2: " << edge.value["AC"] << ")" << std::endl;
                 ret = circuit->netlist()->addComponent(edge.component.c_str(), e_VDC);
-                ret = circuit->netlist()->configComponent(edge.component.c_str(), "V", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value[0]));
+                ret = circuit->netlist()->configComponent(edge.component.c_str(), "V", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value["DC"]));
             } else if (edge.type == "resistor") {            
-                // std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value << ")" << std::endl;
+                //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
                 ret = circuit->netlist()->addComponent(edge.component.c_str(), e_R);
-                ret = circuit->netlist()->configComponent(edge.component.c_str(), "R", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value[0]));
+                ret = circuit->netlist()->configComponent(edge.component.c_str(), "R", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value["value"]));
             } else if (edge.type == "capacitor") {            
-                // std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value << ")" << std::endl;
+                //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
                 ret = circuit->netlist()->addComponent(edge.component.c_str(), e_CAP);
-                ret = circuit->netlist()->configComponent(edge.component.c_str(), "C", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value[0]));
+                ret = circuit->netlist()->configComponent(edge.component.c_str(), "C", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value["value"]));
             } else if (edge.type == "inductor") {            
-                // std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value << ")" << std::endl;
+                //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
                 ret = circuit->netlist()->addComponent(edge.component.c_str(), e_L);
-                ret = circuit->netlist()->configComponent(edge.component.c_str(), "L", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value[0]));
+                ret = circuit->netlist()->configComponent(edge.component.c_str(), "L", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value["value"]));
             }
         }        
         // 调用函数  
@@ -322,7 +327,8 @@ int main(int argc, char *argv[]) {
             iss >> component; // 读取元件名称
             std::vector<std::string> node_component;
             std::string type;  // 存储类型  
-            std::vector<double> value; // 存储元件的值
+            //std::vector<double> value; // 存储元件的值
+            std::unordered_map<std::string, double> value; // 存储元件的值
             // 解析节点和元件值
             if (component == ".subckt") { // 检测子电路开始
                 in_subcircuit = true;
