@@ -36,7 +36,8 @@ namespace csim
     Circuit::Circuit()
         : m_matrixRows(0),
           m_A(nullptr), m_x(nullptr), m_x_1(nullptr), m_z(nullptr), m_z_1(nullptr),
-          m_linearSolver(LinearSolver::createInstance("LU")),
+          //m_linearSolver(LinearSolver::createInstance("LU")),
+          m_linearSolver(LinearSolver::createInstance("gauss")),
           m_maxIterations(100),
           maxIntegralIterations(100),
           m_predictor(IntegralPredictor::createInstance("gear")),
@@ -96,9 +97,9 @@ namespace csim
         delete[] m_x_1;
         delete[] m_z;
         delete[] m_z_1;
-        testMultiLog(m_log_cir,"numBranch:"+std::to_string(numBranch));
-        testMultiLog(m_log_cir,"numNodes:"+std::to_string(numNodes));
-        testMultiLog(m_log_cir,"m_matrixRows:"+std::to_string(m_matrixRows));
+        //testMultiLog(m_log_cir,"numBranch:"+std::to_string(numBranch));
+        //testMultiLog(m_log_cir,"numNodes:"+std::to_string(numNodes));
+        //testMultiLog(m_log_cir,"m_matrixRows:"+std::to_string(m_matrixRows));
         m_A = new csimModel::MComplex[m_matrixRows * m_matrixRows];
         m_x = new csimModel::MComplex[m_matrixRows];
         m_x_1 = new csimModel::MComplex[m_matrixRows];
@@ -120,12 +121,7 @@ namespace csim
         m_GminOptimizer->setGmin(m_environment->m_Gmin);
         m_GminOptimizer->reset();
         m_tTime = 0.0;
-        testMultiLog(m_log_cir,"m_environment->m_Gmin:"+std::to_string(m_environment->m_Gmin));
-        testMultiLog(m_log_cir,"numBranch:"+std::to_string(m_netlist->getNumBranches()));
-        testMultiLog(m_log_cir,"numNodes:"+std::to_string(m_netlist->getNumNodes()));
-        testMultiLog(m_log_cir,"m_matrixRows:"+std::to_string(m_matrixRows));
         m_hsteps->setInitial(m_tMinStep); /* initial step */
-        testMultiLog(m_log_cir,"m_tMinStep:"+std::to_string(m_tMinStep));
         UPDATE_RC(m_predictor->setOrder(m_tOrder, m_hsteps));
         UPDATE_RC(m_corrector->setOrder(m_tOrder, m_hsteps));
         m_firstIntegralStep = true;
@@ -167,9 +163,11 @@ namespace csim
 
     int Circuit::solveMNA(AnalyzerBase *analyzer)
     {
+
         int rc;
         bool converged, cont = true;
         unsigned int iteration = 0;
+
         do
         {
             std::memset((void *)m_A, 0, sizeof(*m_A) * m_matrixRows * m_matrixRows);
@@ -192,7 +190,8 @@ namespace csim
                 m_A[ngnd * m_matrixRows + ngnd] = 0.0;
             }
             /*
-            std::cout << "xxxxxxxxxx\n";
+            std::cout << "xxxxxxxxxx m_A\n";
+            std::cout <<m_matrixRows<< "\n";
             for(size_t i = 0; i < m_matrixRows; i++)
             {
                 for(size_t j = 0; j < m_matrixRows; j++)
@@ -201,17 +200,15 @@ namespace csim
                 }
                 std::cout << "\n";
             }
-            for(size_t j = 0; j < m_matrixRows; j++)
-            {
-                    std::cout << m_x[ j] << ",";
-            }
+            std::cout << "xxxxxxxxxx m_z\n";
             std::cout << "\n";
             for(size_t j = 0; j < m_matrixRows; j++)
             {
                     std::cout << m_z[ j] << ",";
             }
             std::cout << "\n";
-            std::cout << "xxxxxxxxxx\n";*/
+            std::cout << "xxxxxxxxxx\n";
+            std::cout   <<__LINE__ <<"\n";*/
             UPDATE_RC(m_linearSolver->solve(m_A, m_matrixRows, m_x, m_z));
 
             if (iteration)

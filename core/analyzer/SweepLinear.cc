@@ -15,7 +15,7 @@
 #include <cmath>
 #include <algorithm>
 #include "csim/internal/SweepLinear.h"
-
+#include <iostream>
 namespace csim
 {
     int SweepLinear::init(double start, double stop, int points)
@@ -23,6 +23,7 @@ namespace csim
         if (start > stop)
             std::swap(start, stop);
         m_start = start;
+        m_numPoints=points;
         m_step = (stop - start) / (points - 1);
         return 0;
     }
@@ -33,6 +34,6 @@ namespace csim
     }
     bool SweepLinear::hasNext()
     {
-        return m_point <= m_numPoints;
+        return m_point < m_numPoints;
     }
 }

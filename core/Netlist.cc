@@ -94,7 +94,11 @@ namespace csim
 
     int Netlist::getTermlNode(const char *ref, unsigned int terml, unsigned int *out)
     {
+        //std::cout   <<"getTermlNode"<<"\n";
+        //std::cout   <<__LINE__ <<ref<<"\n";
+        //std::cout   <<__LINE__ <<terml<<"\n";
         std::string refNorm = toUpper(ref);
+        ///std::cout   <<__LINE__ <<refNorm<<"\n";
         *out = (unsigned int)-1;
         if (m_modelIndex.find(refNorm) == m_modelIndex.end())
             return CER_NO_SUCH_COMPONENT_REFERENCE;

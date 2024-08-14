@@ -56,7 +56,7 @@ namespace csim
         m_groups[group] = DataGroup();
     }
     Variable &Dataset::addDependentVar(const std::string &group, const std::string &name)
-    {
+    { 
         assert(m_groups[group].vars.find(name) == m_groups[group].vars.end());
         return (m_groups[group].vars[name] = Variable(name));
     }

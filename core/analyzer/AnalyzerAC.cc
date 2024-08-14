@@ -100,12 +100,12 @@ namespace csim
         Sweep *sweep = Sweep::createInstance(fspace);
         if (!sweep)
             return CERR_INVALID_PARAMETER;
-
         UPDATE_RC(sweep->init(fstart, fstop, fpoints));
 
         while (sweep->hasNext())
         {
             double f = sweep->next();
+            //std::cout << "f = " << f << "\n";
             m_currentOmega = 2 * M_PI * f;
 
             UPDATE_RC(circuit()->solveMNA(this));
