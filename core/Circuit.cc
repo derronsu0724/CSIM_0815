@@ -30,7 +30,9 @@
 #include "csim/internal/IntegralCorrector.h"
 #include "csim/internal/Circuit.h"
 #include "analyzer/log.h"
-//#include "header.h"
+#ifdef DEBUG_MATRIX
+#include <fstream>
+#endif
 namespace csim
 {
 
@@ -168,7 +170,9 @@ namespace csim
         int rc;
         bool converged, cont = true;
         unsigned int iteration = 0;
-
+#ifdef DEBUG_MATRIX
+std::ofstream outFile(m_log_cir);
+#endif
         do
         {
             std::memset((void *)m_A, 0, sizeof(*m_A) * m_matrixRows * m_matrixRows);
@@ -190,26 +194,25 @@ namespace csim
                 unsigned int ngnd = m_netlist->getGroundNode();
                 m_A[ngnd * m_matrixRows + ngnd] = 0.0;
             }
+
 #ifdef DEBUG_MATRIX
-            std::cout << "xxxxxxxxxx m_A\n";
-            std::cout <<m_matrixRows<< "\n";
+            outFile << "m_A\n";
+            outFile <<m_matrixRows<< "\n";
             for(size_t i = 0; i < m_matrixRows; i++)
             {
                 for(size_t j = 0; j < m_matrixRows; j++)
                 {
-                    std::cout << m_A[i * m_matrixRows + j] << ",";
+                    outFile << m_A[i * m_matrixRows + j] << ",";
                 }
-                std::cout << "\n";
+                outFile << "\n";
             }
-            std::cout << "xxxxxxxxxx m_z\n";
-            std::cout << "\n";
+            outFile << "m_z\n";
             for(size_t j = 0; j < m_matrixRows; j++)
             {
-                    std::cout << m_z[ j] << ",";
+                    outFile << m_z[ j] << ",";
             }
-            std::cout << "\n";
-            std::cout << "xxxxxxxxxx\n";
-            std::cout   <<__LINE__ <<"\n";
+            outFile << "\n";
+
 #endif
             UPDATE_RC(m_linearSolver->solve(m_A, m_matrixRows, m_x, m_z));
 
@@ -234,7 +237,9 @@ namespace csim
 
             iteration++;
         } while (cont && (iteration < m_maxIterations));
-
+#ifdef DEBUG_MATRIX
+outFile.close();
+#endif
 #if defined(ENABLE_STAT)
         m_statNumNonlinearIters += iteration;
 #endif

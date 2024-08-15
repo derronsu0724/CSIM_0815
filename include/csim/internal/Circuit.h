@@ -189,7 +189,7 @@ namespace csim
         void createMatrix(unsigned int numNodes, unsigned int numBranches);
         bool isConverged();
         double adaptStep();
-        std::string m_log_cir="log_cir.txt";
+        std::string m_log_cir="log_cir.csv";
     private:
         csimModel::Environment *m_environment;
         unsigned int m_matrixRows;
