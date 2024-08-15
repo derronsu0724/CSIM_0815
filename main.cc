@@ -91,10 +91,11 @@ std::vector<std::pair<std::string, int>> findEdgesBetweenProbes(std::vector<spic
         }
         ii=ii+1;
     }
+    /*
     for (const auto& ii  : componentFromPair) {
                 std::cout << "Component: " << ii.first << std::endl;  
                 std::cout << "node: " << ii.second << std::endl;
-    }
+    }*/
     return componentFromPair;
 }
 
