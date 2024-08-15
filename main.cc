@@ -111,7 +111,7 @@ static void OPCircuit_helper(std::set<std::string> nodes,std::vector<spice::Edge
             if (edge.type.empty()) {
                 // std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (value: " << edge.value << ")" << std::endl;  
             } else if (edge.type == "voltage") {            
-                std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value1: " << edge.value["DC"]<< ", value2: " << edge.value["AC"] << ")" << std::endl;
+                //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value1: " << edge.value["DC"]<< ", value2: " << edge.value["AC"] << ")" << std::endl;
                 ret = circuit->netlist()->addComponent(edge.component.c_str(), e_VDC);
                 ret = circuit->netlist()->configComponent(edge.component.c_str(), "V", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value["DC"]));
             } else if (edge.type == "resistor") {            
@@ -133,7 +133,7 @@ static void OPCircuit_helper(std::set<std::string> nodes,std::vector<spice::Edge
         // printEdgePairs(nodeEdges);
         ret = circuit->netlist()->prepare();
         for (const auto& node : nodeEdges) {  
-            std::cout << "Node: " << node.first << "\n";
+            //std::cout << "Node: " << node.first << "\n";
             const auto& edgesInfo = node.second;
             size_t count = edgesInfo.size();        
             for (size_t i = 0; i < count; ++i) {  
@@ -143,7 +143,7 @@ static void OPCircuit_helper(std::set<std::string> nodes,std::vector<spice::Edge
                     const spice::Edge& edge2 = edgesInfo[j].first;
                     const std::string& position1 = edgesInfo[i].second;
                     const std::string& position2 = edgesInfo[j].second;
-                    std::cout << edge1.component << ", "<< position1 << ", " << edge2.component << ", " << position2<< "\n";                            
+                    //std::cout << edge1.component << ", "<< position1 << ", " << edge2.component << ", " << position2<< "\n";                            
                     ret = circuit->netlist()->wire(edge1.component.c_str(), std::stoi(position1), edge2.component.c_str(), std::stoi(position2));            
                 }
             }
@@ -186,20 +186,20 @@ static int ACLinearCircuit(std::set<std::string> nodes,std::vector<spice::Edge> 
             if (edge.type.empty()) {
                 // std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (value: " << edge.value << ")" << std::endl;  
             } else if (edge.type == "voltage") {            
-                std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value1: " << edge.value["DC"]<< ", value2: " << edge.value["AC"] << ")" << std::endl;
+                //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value1: " << edge.value["DC"]<< ", value2: " << edge.value["AC"] << ")" << std::endl;
                 ret = circuit->netlist()->addComponent(edge.component.c_str(), e_VAC);
                 ret = circuit->netlist()->configComponent(edge.component.c_str(), "Vp", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value["AC"]));
                 ret = circuit->netlist()->configComponent(edge.component.c_str(), "freq", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(50.0));
             } else if (edge.type == "resistor") {            
-                std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
+                //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
                 ret = circuit->netlist()->addComponent(edge.component.c_str(), e_R);
                 ret = circuit->netlist()->configComponent(edge.component.c_str(), "R", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value["value"]));
             } else if (edge.type == "capacitor") {            
-                std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
+                //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
                 ret = circuit->netlist()->addComponent(edge.component.c_str(), e_CAP);
                 ret = circuit->netlist()->configComponent(edge.component.c_str(), "C", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value["value"]));
             } else if (edge.type == "inductor") {            
-                std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
+                //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
                 ret = circuit->netlist()->addComponent(edge.component.c_str(), e_L);
                 ret = circuit->netlist()->configComponent(edge.component.c_str(), "L", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value["value"]));
             }
@@ -283,154 +283,47 @@ int main(int argc, char *argv[]) {
     std::set<std::string> nodes=parser.m_nodes;
     std::vector<spice::Edge> edges=parser.m_edges;
     std::vector<std::string> probe_names=parser.m_probe_names;
-    std::unordered_multimap<std::string, std::vector<double>>  analysis_value=parser.m_analysis;   
-    // 使用范围for循环打印  
-    std::cout << "Nodes in set:" << std::endl;  
-    for (const auto& node : nodes) {  
-        std::cout << node << std::endl;  
-    }
-    std::cout << "Probe :" << std::endl;  
-    for (const auto& node : probe_names) {  
-        std::cout << node << std::endl;  
-    }
-        for (auto &edge : edges) {
-            if (edge.type.empty()) {
-                // std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (value: " << edge.value << ")" << std::endl;  
-            } else if (edge.type == "voltage") {            
-                std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value1: " << edge.value["DC"]<< ", value2: " << edge.value["AC"] << ")" << std::endl;
-            } else if (edge.type == "resistor") {            
-                std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
-             } else if (edge.type == "capacitor") {            
-                std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
-            } else if (edge.type == "inductor") {            
-                std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
+    std::unordered_multimap<std::string, std::vector<double>>  analysis_value=parser.m_analysis;
+    if (argc > 2) {
+        std::string option = argv[2]; // 获取第一个参数（参数索引从1开始）  
+        if (option == "--verbose") 
+        {    // 使用范围for循环打印  
+            std::cout << "Nodes in set:" << std::endl;  
+            for (const auto& node : nodes) {  
+                std::cout << node << std::endl;  
             }
-        }
+            std::cout << "Probe :" << std::endl;  
+            for (const auto& node : probe_names) {  
+                std::cout << node << std::endl;  
+            }
+                for (auto &edge : edges) {
+                    if (edge.type.empty()) {
+                        // std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (value: " << edge.value << ")" << std::endl;  
+                    } else if (edge.type == "voltage") {            
+                        std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value1: " << edge.value["DC"]<< ", value2: " << edge.value["AC"] << ")" << std::endl;
+                    } else if (edge.type == "resistor") {            
+                        std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
+                    } else if (edge.type == "capacitor") {            
+                        std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
+                    } else if (edge.type == "inductor") {            
+                        std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
+                    }
+                }
 
-        auto range = analysis_value.equal_range("ac");
-        std::vector<double> freq;
-        for (auto it = range.first; it != range.second; ++it) {  
+            auto range = analysis_value.equal_range("ac");
+            std::vector<double> freq;
+            for (auto it = range.first; it != range.second; ++it) {  
             std::cout << "Key: " << it->first << ", Values: ";  
             for (const auto& v : it->second) {
                 freq.push_back(v);  
-                std::cout << v << " ";  
+                //std::cout << v << " ";  
             }  
             std::cout << std::endl;}
+        }
+    }
     //OPCircuit_helper(nodes,edges, probe_names);
     ACLinearCircuit(nodes,edges, probe_names,"lin", 70000, 170000);
-    /*
-    if(argc > 1)  {
-        std::ifstream netlist(temp1.at(1));  
-        std::string line; 
-        std::vector<Subcircuit> subcircuits; // 存储所有子电路
-        Subcircuit current_subcircuit;  
-        bool in_subcircuit = false;
-        std::set<std::string> nodes;  // 存储节点  
-        std::vector<Edge> edges;       // 存储边
-        std::vector<std::string> probe_names;
-        if (!netlist) {  
-            std::cerr << "Unable to open file!" << std::endl;  
-            return 1;  
-        }  
 
-        while (std::getline(netlist, line)) {
-            // 跳过注释行  
-            if (line.empty() || line[0] == '*') continue;
-            std::istringstream iss(line);
-            std::string component;
-            iss >> component; // 读取元件名称
-            std::vector<std::string> node_component;
-            std::string type;  // 存储类型  
-            //std::vector<double> value; // 存储元件的值
-            std::unordered_map<std::string, double> value; // 存储元件的值
-            // 解析节点和元件值
-            if (component == ".subckt") { // 检测子电路开始
-                in_subcircuit = true;
-                iss >> current_subcircuit.name;
-                std::string node;
-                while (iss >> node) {
-                    current_subcircuit.external_nodes.push_back(node);
-                }
-            } else if (in_subcircuit && component == ".ENDS") { // 子电路结束  
-                subcircuits.push_back(current_subcircuit);
-                current_subcircuit = Subcircuit(); // 清空当前子电路
-                in_subcircuit = false;
-            } else if (in_subcircuit) {// 子电路内部元件  
-                fun1(line,node_component,type,value);
-                current_subcircuit.components.push_back({node_component[0], node_component[1], component, type, value});  
-            }
-            else if (component == ".probe") {                
-                // 查找 .probe 的开始位置
-                size_t probe_pos = line.find(".probe");
-                // 确保找到了 .probe
-                if (probe_pos != std::string::npos) {
-                    // 从 .probe 后面开始查找 v(
-                    size_t start_pos = line.find("v(", probe_pos);
-                    while (start_pos != std::string::npos) {
-                        size_t end_pos = line.find(")", start_pos);
-                        if (end_pos != std::string::npos) {
-                            std::string variable = line.substr(start_pos + 2, end_pos - start_pos - 2);
-                            probe_names.push_back(variable); // 将找到的变量保存到 vector 中
-                            start_pos = line.find("v(", end_pos);
-                        } else {
-                            break;
-                        }
-                    }
-                }
-            }
-            else if (component == ".dc") {
-                auto a1=split_space(line);
-            }
-            else if (component == ".ac") {
-                auto a1=split_space(line);
-                for(auto i=0;i<a1.size();i++){
-                    std::cout<<a1[i]<<" ";
-                }
-                std::cout<<"\n";
-            }
-            else if (component[0] == 'X') { 
-                //std::cout   <<__LINE__ <<"\n";
-                auto temp_=split_space(line);
-                std::string lastElement = temp_.back();
-                std::vector<std::string> a1;
-                for(size_t ii=1;ii<temp_.size()-1;ii++)
-                {
-                    a1.push_back(temp_[ii]);
-                    nodes.insert(temp_[ii]);
-                }
-                for (const auto &subcircuit : subcircuits) { 
-                    if(subcircuit.name == lastElement)
-                    {
-                        for (const auto &component : subcircuit.components) {
-                            std::string temp_node1,temp_node2;
-                            if(findNodePosition(component.from,subcircuit.external_nodes) !=-1){
-                                temp_node1=a1[findNodePosition(component.from,subcircuit.external_nodes)];
-                            } else{
-                                temp_node1=component.from;
-                            }
-                            if(findNodePosition(component.to,subcircuit.external_nodes) !=-1){
-                                temp_node2=a1[findNodePosition(component.to,subcircuit.external_nodes)];
-                            } else{
-                                temp_node2=component.to;
-                            }
-                            edges.push_back({temp_node1, temp_node2, component.component+"_"+subcircuit.name, component.type, component.value});
-                        }
-                        break;
-                    }
-                    
-                }
-            }
-            else{
-            fun1(line,node_component,type,value);
-            edges.push_back({node_component[0], node_component[1], component, type, value});
-            nodes.insert(node_component[0]);
-            nodes.insert(node_component[1]);
-            }
-        }  
-        netlist.close();  
-
-    }
-    */
   return 1;
 }
 // cmake .. -Denable_testcases=ON -Denable_coverage=ON -DCMAKE_BUILD_TYPE=Debug -G "MSYS Makefiles"
