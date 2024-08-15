@@ -29,6 +29,7 @@ std::map<std::string, std::vector<std::pair<spice::Edge, std::string>>> findEdge
         }
     }
     // 输出结果  
+    /*
     for (const auto& node : nodeEdges) {  
         std::cout << "Node: " << node.first << "\n";
         for (const auto& edgeInfo : node.second) {
@@ -39,6 +40,7 @@ std::map<std::string, std::vector<std::pair<spice::Edge, std::string>>> findEdge
                         << ") " << position << "\n";
         }
     }
+    */
     return nodeEdges;  
 } 
 
