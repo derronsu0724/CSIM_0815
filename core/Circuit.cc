@@ -30,6 +30,7 @@
 #include "csim/internal/IntegralCorrector.h"
 #include "csim/internal/Circuit.h"
 #include "analyzer/log.h"
+//#include "header.h"
 namespace csim
 {
 
@@ -189,7 +190,7 @@ namespace csim
                 unsigned int ngnd = m_netlist->getGroundNode();
                 m_A[ngnd * m_matrixRows + ngnd] = 0.0;
             }
-            /*
+#ifdef DEBUG_MATRIX
             std::cout << "xxxxxxxxxx m_A\n";
             std::cout <<m_matrixRows<< "\n";
             for(size_t i = 0; i < m_matrixRows; i++)
@@ -208,7 +209,8 @@ namespace csim
             }
             std::cout << "\n";
             std::cout << "xxxxxxxxxx\n";
-            std::cout   <<__LINE__ <<"\n";*/
+            std::cout   <<__LINE__ <<"\n";
+#endif
             UPDATE_RC(m_linearSolver->solve(m_A, m_matrixRows, m_x, m_z));
 
             if (iteration)

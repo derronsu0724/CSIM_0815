@@ -1,6 +1,14 @@
 cmake_minimum_required(VERSION 3.9)
 project(csim)
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/spdlog/include") # 添加 include 目录 
+#include_directories("${CMAKE_CURRENT_SOURCE_DIR}") # 添加 include 目录 
+# 定义一个CMake变量，用于控制宏的定义
+option(DEBUG_MODE "Enable debug mode" OFF)
+# 根据CMake变量来定义宏
+if(DEBUG_MODE)
+    add_definitions(-DDEBUG_MATRIX)
+endif()
+
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/models")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/utils")
 

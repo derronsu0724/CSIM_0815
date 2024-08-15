@@ -74,26 +74,20 @@ static void OPCircuit_helper(std::set<std::string> nodes,std::vector<spice::Edge
         ret = analyzer->analyze(&dset);
         /* Get nodes */
         auto probe_names_data=spice::findEdgesBetweenProbes(edges,probe_names);
-        unsigned int n_gnd;
-        unsigned int n3[probe_names_data.size()-1];
+        unsigned int n_gnd,n1[probe_names_data.size()-1];
         ret = circuit->netlist()->getTermlNode(probe_names_data[probe_names_data.size()-1].first.c_str(), probe_names_data[probe_names_data.size()-1].second, &n_gnd);
         for (size_t ii=0;ii<probe_names_data.size()-1;ii++)
         {
-            unsigned int n1;
-            //std::cout << "Component: " << probe_names_data[ii].first << std::endl;
-            //std::cout << "node: " << probe_names_data[ii].second << std::endl;
-            ret = circuit->netlist()->getTermlNode(probe_names_data[ii].first.c_str(), probe_names_data[ii].second, &n3[ii]);
-            csimModel::MComplex volt = circuit->getNodeVolt(n3[ii]) - circuit->getNodeVolt(n_gnd);
-            std::cout  <<"volt"<<ii<<":" << std::abs(volt)  <<"\n";
+            ret = circuit->netlist()->getTermlNode(probe_names_data[ii].first.c_str(), probe_names_data[ii].second, &n1[ii]);
+            csimModel::MComplex volt = circuit->getNodeVolt(n1[ii]) - circuit->getNodeVolt(n_gnd);
+            std::cout  <<"volt,"<<probe_names[ii]<<":" << std::abs(volt)  <<"\n";
         }
-        /* Check status of Circuit object */
-        // EXPECT_LT(std::abs(csimModel::MComplex(4.0, 0) - volt), epsilon_linear);
         delete circuit;
         delete e_R;
         delete e_VDC;
 }
 
-static int ACLinearCircuit(std::set<std::string> nodes,std::vector<spice::Edge> edges,std::vector<std::string> probe_names,const char *fspace, double fstart, double fstop)
+static int ACLinearCircuit(std::set<std::string> nodes,std::vector<spice::Edge> edges,std::vector<std::string> probe_names,const char *fspace, double fstart, double fstop,int npoints)
 {
     int ret = 0;
     csim::ModelEntry *e_R = csim::ModelLoader::load(resistorLibrary);
@@ -149,36 +143,41 @@ static int ACLinearCircuit(std::set<std::string> nodes,std::vector<spice::Edge> 
         csim::AnalyzerBase *analyzer = csim::Analyzers::createInstance("AC", circuit);
         analyzer->property().setProperty("fstart", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(fstart));
         analyzer->property().setProperty("fstop", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(fstop));
-        analyzer->property().setProperty("fpoints", csimModel::Variant(csimModel::Variant::VariantUint32).setUint32(50));
+        analyzer->property().setProperty("fpoints", csimModel::Variant(csimModel::Variant::VariantUint32).setUint32(npoints));
         analyzer->property().setProperty("fspace", csimModel::Variant(csimModel::Variant::VariantString).setString(fspace));
 
         /* Get nodes */
         auto probe_names_data=spice::findEdgesBetweenProbes(edges,probe_names);
-        unsigned int n_gnd, n1;
-        ret = circuit->netlist()->getTermlNode(probe_names_data[0].first.c_str(), probe_names_data[0].second, &n1);
+        unsigned int n_gnd, n1[probe_names_data.size()-1];
+        
         ret = circuit->netlist()->getTermlNode(probe_names_data[probe_names_data.size()-1].first.c_str(), probe_names_data[probe_names_data.size()-1].second, &n_gnd);
         analyzer->addInterestNode(n_gnd);
-        analyzer->addInterestNode(n1);
-
+        for (size_t ii=0;ii<probe_names_data.size()-1;ii++)
+        {
+            ret = circuit->netlist()->getTermlNode(probe_names_data[ii].first.c_str(), probe_names_data[ii].second, &n1[ii]);
+            analyzer->addInterestNode(n1[ii]);
+        }
         csim::Dataset dset;
         ret = analyzer->analyze(&dset);
         /* Check solution vector of AC analyzer */
         csim::Variable &F = dset.getIndependentVar("frequency");
         csim::Variable &Vgnd = dset.getDependentVar("voltage", analyzer->makeVarName("V", n_gnd));
-        csim::Variable &Vn1 = dset.getDependentVar("voltage", analyzer->makeVarName("V", n1));
- 
+        std::cout<<"freq numbers: "<<F.getNumValues()<<"\n";
+        std::cout<<"probe numbers: "<<probe_names_data.size()-1<<"\n";
+        std::vector<std::vector<std::complex<double>>> result(F.getNumValues(), std::vector<std::complex<double>>(probe_names_data.size()-1,std::complex<double>(0,0)));
         std::ofstream outFile("output.csv"); // 创建一个 ofstream 对象并打开文件 
         for(size_t i=0; i<F.getNumValues(); ++i) {
+            outFile  <<i<<","<<F.at(i).real()<<",";
+            for (size_t jj=0;jj<probe_names_data.size()-1;jj++)
+            {
+                csim::Variable &Vn1 = dset.getDependentVar("voltage", analyzer->makeVarName("V", n1[jj]));
+                csimModel::MComplex _volt = Vn1.at(i) - Vgnd.at(i);
+                result[i][jj] = std::complex(_volt.real(), _volt.imag());
+                auto volt = result[i][jj];
+                outFile<<std::abs(volt) <<",";
 
-            csimModel::MComplex _volt = Vn1.at(i) - Vgnd.at(i);
-            auto volt = std::complex(_volt.real(), _volt.imag());
-            outFile  <<i<<"," <<F.at(i).real()<<","<<std::abs(volt) <<"\n";
-            double omega = F.at(i).real() * 2 * M_PI;
-            //std::complex<double> z(R, omega*L - 1.0/(omega * C));
-            //auto Ic = Vp / z;
-            //double mag = std::abs(R*Ic);
-            //XPECT_NEAR(mag, std::abs(volt), epsilon_linear);
-            //EXPECT_NEAR(std::arg(volt), std::arg(Ic), epsilon_linear);
+            }
+            outFile  <<"\n";
         }
         outFile.close(); // 关闭文件
         delete analyzer;
@@ -189,6 +188,7 @@ static int ACLinearCircuit(std::set<std::string> nodes,std::vector<spice::Edge> 
         delete e_VAC;
     return ret;
 }
+
 
 
 
@@ -228,23 +228,37 @@ int main(int argc, char *argv[]) {
                         std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
                     }
                 }
-
-            auto range = analysis_value.equal_range("ac");
-            std::vector<double> freq;
-            for (auto it = range.first; it != range.second; ++it) {  
-            std::cout << "Key: " << it->first << ", Values: ";  
-            for (const auto& v : it->second) {
-                freq.push_back(v);  
-                //std::cout << v << " ";  
-            }  
-            std::cout << std::endl;}
+            std::vector<std::string> ana{"ac","op","tran"};
+            for(auto ii:ana){
+                auto range = analysis_value.equal_range(ii);                
+                for (auto it = range.first; it != range.second; ++it) {  
+                std::cout << "Key: " << it->first << ", Values: ";  
+                for (const auto& v : it->second) {
+                    std::cout << v << " ";  
+                }  
+                std::cout << std::endl;
+                }
+            }
         }
     }
-    //OPCircuit_helper(nodes,edges, probe_names);
-    ACLinearCircuit(nodes,edges, probe_names,"lin", 70000, 170000);
+    for (auto it = analysis_value.begin(); it != analysis_value.end(); ++it) {
+        std::cout << "Key: " << it->first << ", Value: ";
+        if(it->first=="ac"){
+            std::vector<double> freq;
+            for (double value : it->second) {
+                freq.push_back(value); 
+                std::cout << value << " ";
+            }
+            std::cout << std::endl;
+            ACLinearCircuit(nodes,edges, probe_names,"lin", freq[1], freq[2],freq[0]);
+        } else if(it->first=="op"){
+            OPCircuit_helper(nodes,edges, probe_names);
+        }
+    }   
+
 
   return 1;
 }
 // cmake .. -Denable_testcases=ON -Denable_coverage=ON -DCMAKE_BUILD_TYPE=Debug -G "MSYS Makefiles"
-// cmake .. -DCMAKE_BUILD_TYPE=Debug -G "MSYS Makefiles"
+// cmake .. -DCMAKE_BUILD_TYPE=Debug -G "MSYS Makefiles" -DDEBUG_MODE=ON
 // make

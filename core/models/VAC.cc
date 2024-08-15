@@ -64,6 +64,9 @@ namespace csimModel
 
     int VAC::iterateDC()
     {
+        //std::cout << "getBranch(0):" <<getBranch(0)<< std::endl;
+        //std::cout << "getNode(0):" <<getNode(0)<< std::endl;
+        //std::cout << "getNode(0):" <<getNode(1)<< std::endl;
         unsigned int k = getBranch(0);
         addB(getNode(0), k, +1.0);
         addB(getNode(1), k, -1.0);
@@ -74,6 +77,9 @@ namespace csimModel
 
     int VAC::iterateAC(double omega)
     {
+        //std::cout << "getBranch(0):" <<getBranch(0)<< std::endl;
+        //std::cout << "getNode(0):" <<getNode(0)<< std::endl;
+        //std::cout << "getNode(0):" <<getNode(1)<< std::endl;
         unsigned int k = getBranch(0);
         addB(getNode(0), k, +1.0);
         addB(getNode(1), k, -1.0);
