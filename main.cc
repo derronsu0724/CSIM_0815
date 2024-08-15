@@ -13,113 +13,13 @@
 #include <iostream>  
 #include <fstream>  
 #include <string>  
-#include <boost/regex.hpp>
+
 #include "log.h"
-#include <fstream>  // 包含文件输入输出相关的类 
-std::vector<std::string> split_space(const std::string& text) {
-  boost::regex ws_re("\\s+");
-  std::vector<std::string> vector_(
-      boost::sregex_token_iterator(text.begin(), text.end(), ws_re, -1),
-      boost::sregex_token_iterator());
-  return vector_;
-}
-class Graph {
-private:
-    std::vector<std::vector<int>> adjacencyList;
-    std::vector<bool> visited;
- 
-public:
-    Graph(int n) {
-        adjacencyList.resize(n);
-        visited.resize(n, false);
-    }
- 
-    void addEdge(int u, int v) {
-        adjacencyList[u].push_back(v);
-        adjacencyList[v].push_back(u);
-    }
- 
-    void DFS(int vertex) {
-        visited[vertex] = true;
-        std::cout << vertex << " ";
- 
-        for (int i = 0; i < adjacencyList[vertex].size(); i++) {
-            int neighbor = adjacencyList[vertex][i];
-            if (!visited[neighbor]) {
-                DFS(neighbor);
-            }
-        }
-    }
-};
-
-struct Edge {
-    std::string from;
-    std::string to;
-    std::string component;
-    std::string type;
-    std::unordered_map<std::string, double> value; // 以名称为Key的参数值,电阻电容电感值
-};
-
-struct Subcircuit {
-    std::string name; //  子电路名  
-    std::vector<std::string> nodes;
-    std::vector<std::string> external_nodes;
-    std::vector<Edge> components; //  子电路内部元件  
-};
-
-void fun1(std::string& line,std::vector<std::string>& node,std::string& type, std::unordered_map<std::string, double>& data1)
-{
-          std::istringstream iss(line);
-          std::string component;
-          iss >> component; // 读取元件名称
-          std::string node1,node2;
-          if (std::tolower(component[0]) == 'r' ) {
-              double value;
-              iss >> node1 >> node2 >> value; // 读取节点和元件的值 
-              type="resistor";
-              //data1.push_back(value);
-              data1["value"]=value;
-          } else if (std::tolower(component[0] )== 'c') {
-                double value; 
-              iss >> node1 >> node2 >> value; // 读取节点和元件的值
-              type="capacitor";
-              data1["value"]=value;
-              //data1.push_back(value);
-          } else if (std::tolower(component[0] )== 'l') {
-              double value;
-              iss >> node1 >> node2 >> value; // 读取节点和元件的值
-              type="inductor";
-              //data1.push_back(value);
-              data1["value"]=value;
-          } else if (std::tolower(component[0] )== 'v') { // 处理电压源 
-              auto a1=split_space(line);
-              double value1, value2;
-              node1=a1[1];
-              node2=a1[2];
-              value1=std::stod(a1[4]);
-              value2=std::stod(a1[6]);              
-              type="voltage";
-              //data1.push_back(value1);
-              //data1.push_back(value2);
-              data1["DC"]=value1;
-              data1["AC"]=value2;
-          }
-          node.push_back(node1);
-          node.push_back(node2);
-}
-
-int findNodePosition(const std::string& node1, const std::vector<std::string>& a1) {  
-    for (size_t i = 0; i < a1.size(); ++i) {  
-        if (a1[i] == node1) {  
-            return static_cast<int>(i); // 找到时返回索引  
-        }  
-    }  
-    return -1; // -1 表示未找到  
-} 
+#include "parse.h"
   
 // 函数，找出每个节点连接的边
-std::map<std::string, std::vector<std::pair<Edge, std::string>>> findEdgesForNodes(const std::vector<Edge>& edges) {  
-    std::map<std::string, std::vector<std::pair<Edge, std::string>>> nodeEdges;
+std::map<std::string, std::vector<std::pair<spice::Edge, std::string>>> findEdgesForNodes(const std::vector<spice::Edge>& edges) {  
+    std::map<std::string, std::vector<std::pair<spice::Edge, std::string>>> nodeEdges;
     for (const auto& edge : edges) {
         if (!edge.type.empty()) {
             // 添加到 from 连接
@@ -132,7 +32,7 @@ std::map<std::string, std::vector<std::pair<Edge, std::string>>> findEdgesForNod
     for (const auto& node : nodeEdges) {  
         std::cout << "Node: " << node.first << "\n";
         for (const auto& edgeInfo : node.second) {
-                const Edge& edge = edgeInfo.first;
+                const spice::Edge& edge = edgeInfo.first;
                 const std::string& position = edgeInfo.second;
                 std::cout << "  Edge: " << edge.from << " -> " << edge.to
                         << " (Type: " << edge.type << ", component: " << edge.component
@@ -143,7 +43,7 @@ std::map<std::string, std::vector<std::pair<Edge, std::string>>> findEdgesForNod
 } 
 
 // 函数，生成每个节点下所有边的两两配对  
-void printEdgePairs(const std::map<std::string, std::vector<std::pair<Edge, std::string>>>& nodeEdges) {  
+void printEdgePairs(const std::map<std::string, std::vector<std::pair<spice::Edge, std::string>>>& nodeEdges) {  
     for (const auto& node : nodeEdges) {  
         std::cout << "Node: " << node.first << "\n";
         const auto& edgesInfo = node.second;
@@ -151,8 +51,8 @@ void printEdgePairs(const std::map<std::string, std::vector<std::pair<Edge, std:
         for (size_t i = 0; i < count; ++i) {  
             for (size_t j = i + 1; j < count; ++j) {  
                 // 两条边的配对  
-                const Edge& edge1 = edgesInfo[i].first;  
-                const Edge& edge2 = edgesInfo[j].first;
+                const spice::Edge& edge1 = edgesInfo[i].first;  
+                const spice::Edge& edge2 = edgesInfo[j].first;
                 const std::string& position1 = edgesInfo[i].second;
                 const std::string& position2 = edgesInfo[j].second;
                 std::cout << edge1.component << ", "<< position1 << ", " << edge2.component << ", " << position2<< "\n";
@@ -171,7 +71,7 @@ void printEdgePairs(const std::map<std::string, std::vector<std::pair<Edge, std:
         }
     }
 }
-std::vector<std::pair<std::string, int>> findEdgesBetweenProbes(std::vector<Edge> edges,std::vector<std::string> probe_names)
+std::vector<std::pair<std::string, int>> findEdgesBetweenProbes(std::vector<spice::Edge> edges,std::vector<std::string> probe_names)
 {
     std::vector<std::pair<std::string, int>> componentFromPair(probe_names.size());
     int ii=0;
@@ -198,29 +98,20 @@ std::vector<std::pair<std::string, int>> findEdgesBetweenProbes(std::vector<Edge
     return componentFromPair;
 }
 
-static void OPCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges,std::vector<std::string> probe_names)
+static void OPCircuit_helper(std::set<std::string> nodes,std::vector<spice::Edge> edges,std::vector<std::string> probe_names)
 {
-        probe_names.push_back("0");
         int ret = 0;
         csim::ModelEntry *e_R = csim::ModelLoader::load(resistorLibrary);
         csim::ModelEntry *e_VDC = csim::ModelLoader::load(VDCLibrary);
         csim::ModelEntry *e_L = csim::ModelLoader::load(InductorLibrary);
         csim::ModelEntry *e_CAP = csim::ModelLoader::load(CapacitorLibrary);
         csim::Circuit *circuit = new csim::Circuit();
-        // 打印节点
-        /*
-        std::cout << "node:" ;
-        for (auto &node : nodes) {  
-            std::cout << node << ",";
-        }
-        std::cout << std::endl;*/
-        // 打印边
         // std::cout << "\n edge:" << std::endl;
         for (auto &edge : edges) {
             if (edge.type.empty()) {
                 // std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (value: " << edge.value << ")" << std::endl;  
             } else if (edge.type == "voltage") {            
-                //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value1: " << edge.value["DC"]<< ", value2: " << edge.value["AC"] << ")" << std::endl;
+                std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value1: " << edge.value["DC"]<< ", value2: " << edge.value["AC"] << ")" << std::endl;
                 ret = circuit->netlist()->addComponent(edge.component.c_str(), e_VDC);
                 ret = circuit->netlist()->configComponent(edge.component.c_str(), "V", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value["DC"]));
             } else if (edge.type == "resistor") {            
@@ -238,7 +129,7 @@ static void OPCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges
             }
         }        
         // 调用函数  
-        std::map<std::string, std::vector<std::pair<Edge, std::string>>> nodeEdges = findEdgesForNodes(edges);
+        std::map<std::string, std::vector<std::pair<spice::Edge, std::string>>> nodeEdges = findEdgesForNodes(edges);
         // printEdgePairs(nodeEdges);
         ret = circuit->netlist()->prepare();
         for (const auto& node : nodeEdges) {  
@@ -248,8 +139,8 @@ static void OPCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges
             for (size_t i = 0; i < count; ++i) {  
                 for (size_t j = i + 1; j < count; ++j) {  
                     // 两条边的配对  
-                    const Edge& edge1 = edgesInfo[i].first;  
-                    const Edge& edge2 = edgesInfo[j].first;
+                    const spice::Edge& edge1 = edgesInfo[i].first;  
+                    const spice::Edge& edge2 = edgesInfo[j].first;
                     const std::string& position1 = edgesInfo[i].second;
                     const std::string& position2 = edgesInfo[j].second;
                     std::cout << edge1.component << ", "<< position1 << ", " << edge2.component << ", " << position2<< "\n";                            
@@ -283,9 +174,8 @@ static void OPCircuit_helper(std::set<std::string> nodes,std::vector<Edge> edges
         delete e_VDC;
 }
 
-static int ACLinearCircuit(std::set<std::string> nodes,std::vector<Edge> edges,std::vector<std::string> probe_names,const char *fspace, double fstart, double fstop)
+static int ACLinearCircuit(std::set<std::string> nodes,std::vector<spice::Edge> edges,std::vector<std::string> probe_names,const char *fspace, double fstart, double fstop)
 {
-    probe_names.push_back("0");
     int ret = 0;
     csim::ModelEntry *e_R = csim::ModelLoader::load(resistorLibrary);
     csim::ModelEntry *e_L = csim::ModelLoader::load(InductorLibrary);
@@ -297,8 +187,6 @@ static int ACLinearCircuit(std::set<std::string> nodes,std::vector<Edge> edges,s
                 // std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (value: " << edge.value << ")" << std::endl;  
             } else if (edge.type == "voltage") {            
                 std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value1: " << edge.value["DC"]<< ", value2: " << edge.value["AC"] << ")" << std::endl;
-                //ret = circuit->netlist()->addComponent(edge.component.c_str(), e_VDC);
-                //ret = circuit->netlist()->configComponent(edge.component.c_str(), "V", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value["DC"]));
                 ret = circuit->netlist()->addComponent(edge.component.c_str(), e_VAC);
                 ret = circuit->netlist()->configComponent(edge.component.c_str(), "Vp", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value["AC"]));
                 ret = circuit->netlist()->configComponent(edge.component.c_str(), "freq", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(50.0));
@@ -317,7 +205,7 @@ static int ACLinearCircuit(std::set<std::string> nodes,std::vector<Edge> edges,s
             }
         } 
         // 调用函数  
-        std::map<std::string, std::vector<std::pair<Edge, std::string>>> nodeEdges = findEdgesForNodes(edges);
+        std::map<std::string, std::vector<std::pair<spice::Edge, std::string>>> nodeEdges = findEdgesForNodes(edges);
         // printEdgePairs(nodeEdges);
         ret = circuit->netlist()->prepare();
         for (const auto& node : nodeEdges) {  
@@ -327,8 +215,8 @@ static int ACLinearCircuit(std::set<std::string> nodes,std::vector<Edge> edges,s
             for (size_t i = 0; i < count; ++i) {  
                 for (size_t j = i + 1; j < count; ++j) {  
                     // 两条边的配对  
-                    const Edge& edge1 = edgesInfo[i].first;  
-                    const Edge& edge2 = edgesInfo[j].first;
+                    const spice::Edge& edge1 = edgesInfo[i].first;  
+                    const spice::Edge& edge2 = edgesInfo[j].first;
                     const std::string& position1 = edgesInfo[i].second;
                     const std::string& position2 = edgesInfo[j].second;
                     //std::cout << edge1.component << ", "<< position1 << ", " << edge2.component << ", " << position2<< "\n";                            
@@ -360,7 +248,6 @@ static int ACLinearCircuit(std::set<std::string> nodes,std::vector<Edge> edges,s
         csim::Variable &Vgnd = dset.getDependentVar("voltage", analyzer->makeVarName("V", n_gnd));
         csim::Variable &Vn1 = dset.getDependentVar("voltage", analyzer->makeVarName("V", n1));
  
-        std::cout   <<F.getNumValues() <<"\n";
         std::ofstream outFile("output.csv"); // 创建一个 ofstream 对象并打开文件 
         for(size_t i=0; i<F.getNumValues(); ++i) {
 
@@ -390,7 +277,48 @@ int main(int argc, char *argv[]) {
     std::vector<std::string> temp1(argc);
     for (int i = 0; i < argc; i++) {
         temp1.at(i) = argv[i];
+        //std::cout<<temp1.at(i)<<"\n";
     }
+    spice::parse_ parser(temp1.at(1));
+    std::set<std::string> nodes=parser.m_nodes;
+    std::vector<spice::Edge> edges=parser.m_edges;
+    std::vector<std::string> probe_names=parser.m_probe_names;
+    std::unordered_multimap<std::string, std::vector<double>>  analysis_value=parser.m_analysis;   
+    // 使用范围for循环打印  
+    std::cout << "Nodes in set:" << std::endl;  
+    for (const auto& node : nodes) {  
+        std::cout << node << std::endl;  
+    }
+    std::cout << "Probe :" << std::endl;  
+    for (const auto& node : probe_names) {  
+        std::cout << node << std::endl;  
+    }
+        for (auto &edge : edges) {
+            if (edge.type.empty()) {
+                // std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (value: " << edge.value << ")" << std::endl;  
+            } else if (edge.type == "voltage") {            
+                std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value1: " << edge.value["DC"]<< ", value2: " << edge.value["AC"] << ")" << std::endl;
+            } else if (edge.type == "resistor") {            
+                std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
+             } else if (edge.type == "capacitor") {            
+                std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
+            } else if (edge.type == "inductor") {            
+                std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
+            }
+        }
+
+        auto range = analysis_value.equal_range("ac");
+        std::vector<double> freq;
+        for (auto it = range.first; it != range.second; ++it) {  
+            std::cout << "Key: " << it->first << ", Values: ";  
+            for (const auto& v : it->second) {
+                freq.push_back(v);  
+                std::cout << v << " ";  
+            }  
+            std::cout << std::endl;}
+    //OPCircuit_helper(nodes,edges, probe_names);
+    ACLinearCircuit(nodes,edges, probe_names,"lin", 70000, 170000);
+    /*
     if(argc > 1)  {
         std::ifstream netlist(temp1.at(1));  
         std::string line; 
@@ -500,9 +428,9 @@ int main(int argc, char *argv[]) {
             }
         }  
         netlist.close();  
-        //OPCircuit_helper(nodes,edges, probe_names);
-        ACLinearCircuit(nodes,edges, probe_names,"lin", 70000, 170000);
+
     }
+    */
   return 1;
 }
 // cmake .. -Denable_testcases=ON -Denable_coverage=ON -DCMAKE_BUILD_TYPE=Debug -G "MSYS Makefiles"
