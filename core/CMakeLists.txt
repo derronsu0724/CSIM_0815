@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
 project(csim)
-include_directories("D:/CSIM_sudl/bin/spdlog/include") # 添加 include 目录 
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/spdlog/include") # 添加 include 目录 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/models")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/utils")
 
