@@ -32,6 +32,7 @@
 #include "analyzer/log.h"
 #ifdef DEBUG_MATRIX
 #include <fstream>
+#include <iomanip>
 #endif
 namespace csim
 {
@@ -202,7 +203,8 @@ std::ofstream outFile(m_log_cir);
             {
                 for(size_t j = 0; j < m_matrixRows; j++)
                 {
-                    outFile << m_A[i * m_matrixRows + j] << ",";
+                    outFile << std::setw(10)<< m_A[i * m_matrixRows + j] << ",";
+                    //outFile << fmt::format("{:<10} ,\n", m_A[i * m_matrixRows + j]);
                 }
                 outFile << "\n";
             }
