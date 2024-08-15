@@ -71,19 +71,16 @@ include_directories(
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/core/")
 
-if (enable_testcases)
-	enable_testing()
-	add_subdirectory("${PROJECT_SOURCE_DIR}/testcases")
-endif ()
+#if (enable_testcases)
+#	enable_testing()
+#	add_subdirectory("${PROJECT_SOURCE_DIR}/testcases")
+#endif ()
+#add_subdirectory("${PROJECT_SOURCE_DIR}/doc")
 
-add_subdirectory("${PROJECT_SOURCE_DIR}/doc")
-set(SPDLOG_SOURCES
- ${CMAKE_CURRENT_LIST_DIR}/bin/spdlog/lib/libspdlogd.a
-)
-add_executable(test2
+add_executable(circuit
     "${CMAKE_CURRENT_SOURCE_DIR}/main.cc"
 	"${CMAKE_CURRENT_SOURCE_DIR}/core/analyzer/log.cc"
 	"${CMAKE_CURRENT_SOURCE_DIR}/parse.cc"
 )
-target_include_directories(test2 PUBLIC ${CMAKE_CURRENT_LIST_DIR}/core/analyzer ${CMAKE_CURRENT_LIST_DIR}/bin/spdlog/include )
-target_link_libraries(test2 pthread csim ${SPDLOG_SOURCES})
+target_include_directories(circuit PUBLIC ${CMAKE_CURRENT_LIST_DIR}/core/analyzer ${CMAKE_CURRENT_LIST_DIR}/core/spdlog/include )
+target_link_libraries(circuit pthread csim ${SPDLOG_SOURCES})

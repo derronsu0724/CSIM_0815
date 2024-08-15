@@ -246,4 +246,5 @@ int main(int argc, char *argv[]) {
   return 1;
 }
 // cmake .. -Denable_testcases=ON -Denable_coverage=ON -DCMAKE_BUILD_TYPE=Debug -G "MSYS Makefiles"
+// cmake .. -DCMAKE_BUILD_TYPE=Debug -G "MSYS Makefiles"
 // make
