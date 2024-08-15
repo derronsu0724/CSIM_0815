@@ -16,7 +16,7 @@
 
 #include "log.h"
 #include "parse.h"
-  
+/*
 // 函数，找出每个节点连接的边
 std::map<std::string, std::vector<std::pair<spice::Edge, std::string>>> findEdgesForNodes(const std::vector<spice::Edge>& edges) {  
     std::map<std::string, std::vector<std::pair<spice::Edge, std::string>>> nodeEdges;
@@ -29,7 +29,7 @@ std::map<std::string, std::vector<std::pair<spice::Edge, std::string>>> findEdge
         }
     }
     // 输出结果  
-    /*
+    
     for (const auto& node : nodeEdges) {  
         std::cout << "Node: " << node.first << "\n";
         for (const auto& edgeInfo : node.second) {
@@ -40,7 +40,7 @@ std::map<std::string, std::vector<std::pair<spice::Edge, std::string>>> findEdge
                         << ") " << position << "\n";
         }
     }
-    */
+    
     return nodeEdges;  
 } 
 
@@ -58,7 +58,7 @@ void printEdgePairs(const std::map<std::string, std::vector<std::pair<spice::Edg
                 const std::string& position1 = edgesInfo[i].second;
                 const std::string& position2 = edgesInfo[j].second;
                 std::cout << edge1.component << ", "<< position1 << ", " << edge2.component << ", " << position2<< "\n";
-                /*
+                
                 std::cout << "  Pair: ("   
                           << edge1.from << " -> " << edge1.to   
                           << ") and ("   
@@ -68,7 +68,7 @@ void printEdgePairs(const std::map<std::string, std::vector<std::pair<spice::Edg
                           << ", Types: " << edge1.type << ", " << edge2.type   
                           << ", Values: " << edge1.value << ", " << edge2.value
                           << ", position1: " << position1 << "," <<"position2: " << position2
-                          << ")\n";*/
+                          << ")\n";
             }
         }
     }
@@ -93,14 +93,14 @@ std::vector<std::pair<std::string, int>> findEdgesBetweenProbes(std::vector<spic
         }
         ii=ii+1;
     }
-    /*
+    
     for (const auto& ii  : componentFromPair) {
                 std::cout << "Component: " << ii.first << std::endl;  
                 std::cout << "node: " << ii.second << std::endl;
-    }*/
+    }
     return componentFromPair;
 }
-
+*/
 static void OPCircuit_helper(std::set<std::string> nodes,std::vector<spice::Edge> edges,std::vector<std::string> probe_names)
 {
         int ret = 0;
@@ -132,7 +132,7 @@ static void OPCircuit_helper(std::set<std::string> nodes,std::vector<spice::Edge
             }
         }        
         // 调用函数  
-        std::map<std::string, std::vector<std::pair<spice::Edge, std::string>>> nodeEdges = findEdgesForNodes(edges);
+        std::map<std::string, std::vector<std::pair<spice::Edge, std::string>>> nodeEdges = spice::findEdgesForNodes(edges);
         // printEdgePairs(nodeEdges);
         ret = circuit->netlist()->prepare();
         for (const auto& node : nodeEdges) {  
@@ -157,7 +157,7 @@ static void OPCircuit_helper(std::set<std::string> nodes,std::vector<spice::Edge
         csim::Dataset dset;
         ret = analyzer->analyze(&dset);
         /* Get nodes */
-        auto probe_names_data=findEdgesBetweenProbes(edges,probe_names);
+        auto probe_names_data=spice::findEdgesBetweenProbes(edges,probe_names);
         unsigned int n_gnd;
         unsigned int n3[probe_names_data.size()-1];
         ret = circuit->netlist()->getTermlNode(probe_names_data[probe_names_data.size()-1].first.c_str(), probe_names_data[probe_names_data.size()-1].second, &n_gnd);
@@ -208,7 +208,7 @@ static int ACLinearCircuit(std::set<std::string> nodes,std::vector<spice::Edge> 
             }
         } 
         // 调用函数  
-        std::map<std::string, std::vector<std::pair<spice::Edge, std::string>>> nodeEdges = findEdgesForNodes(edges);
+        std::map<std::string, std::vector<std::pair<spice::Edge, std::string>>> nodeEdges = spice::findEdgesForNodes(edges);
         // printEdgePairs(nodeEdges);
         ret = circuit->netlist()->prepare();
         for (const auto& node : nodeEdges) {  
@@ -237,7 +237,7 @@ static int ACLinearCircuit(std::set<std::string> nodes,std::vector<spice::Edge> 
         analyzer->property().setProperty("fspace", csimModel::Variant(csimModel::Variant::VariantString).setString(fspace));
 
         /* Get nodes */
-        auto probe_names_data=findEdgesBetweenProbes(edges,probe_names);
+        auto probe_names_data=spice::findEdgesBetweenProbes(edges,probe_names);
         unsigned int n_gnd, n1;
         ret = circuit->netlist()->getTermlNode(probe_names_data[0].first.c_str(), probe_names_data[0].second, &n1);
         ret = circuit->netlist()->getTermlNode(probe_names_data[probe_names_data.size()-1].first.c_str(), probe_names_data[probe_names_data.size()-1].second, &n_gnd);

@@ -41,6 +41,90 @@ namespace spice
         return -1; // -1 表示未找到  
     } 
 
+    // 函数，找出每个节点连接的边
+    std::map<std::string, std::vector<std::pair<Edge, std::string>>> findEdgesForNodes(const std::vector<Edge>& edges) {  
+        std::map<std::string, std::vector<std::pair<Edge, std::string>>> nodeEdges;
+        for (const auto& edge : edges) {
+            if (!edge.type.empty()) {
+                // 添加到 from 连接
+                nodeEdges[edge.from].emplace_back(edge, "0");
+                // 添加到 to 连接
+                nodeEdges[edge.to].emplace_back(edge, "1");
+            }
+        }
+        // 输出结果  
+        /*
+        for (const auto& node : nodeEdges) {  
+            std::cout << "Node: " << node.first << "\n";
+            for (const auto& edgeInfo : node.second) {
+                    const spice::Edge& edge = edgeInfo.first;
+                    const std::string& position = edgeInfo.second;
+                    std::cout << "  Edge: " << edge.from << " -> " << edge.to
+                            << " (Type: " << edge.type << ", component: " << edge.component
+                            << ") " << position << "\n";
+            }
+        }
+        */
+        return nodeEdges;  
+    } 
+
+    // 函数，生成每个节点下所有边的两两配对  
+    void printEdgePairs(const std::map<std::string, std::vector<std::pair<Edge, std::string>>>& nodeEdges) {  
+        for (const auto& node : nodeEdges) {  
+            std::cout << "Node: " << node.first << "\n";
+            const auto& edgesInfo = node.second;
+            size_t count = edgesInfo.size();        
+            for (size_t i = 0; i < count; ++i) {  
+                for (size_t j = i + 1; j < count; ++j) {  
+                    // 两条边的配对  
+                    const spice::Edge& edge1 = edgesInfo[i].first;  
+                    const spice::Edge& edge2 = edgesInfo[j].first;
+                    const std::string& position1 = edgesInfo[i].second;
+                    const std::string& position2 = edgesInfo[j].second;
+                    std::cout << edge1.component << ", "<< position1 << ", " << edge2.component << ", " << position2<< "\n";
+                    /*
+                    std::cout << "  Pair: ("   
+                            << edge1.from << " -> " << edge1.to   
+                            << ") and ("   
+                            << edge2.from << " -> " << edge2.to   
+                            << ") (Components: "   
+                            << edge1.component << ", " << edge2.component   
+                            << ", Types: " << edge1.type << ", " << edge2.type   
+                            << ", Values: " << edge1.value << ", " << edge2.value
+                            << ", position1: " << position1 << "," <<"position2: " << position2
+                            << ")\n";*/
+                }
+            }
+        }
+    }
+    std::vector<std::pair<std::string, int>> findEdgesBetweenProbes(std::vector<Edge> edges,std::vector<std::string> probe_names)
+    {
+        std::vector<std::pair<std::string, int>> componentFromPair(probe_names.size());
+        int ii=0;
+        for (const auto& probe_1  : probe_names) {
+            // std::cout << "Probe name: " << probe_1 << ",ii: " << ii<< std::endl;  
+            for (const auto& edge : edges) {
+                if ( edge.from == probe_1  )
+                {
+                    componentFromPair[ii] = {edge.component, 0};
+                    break;
+                } else if ( edge.to == probe_1  )
+                {  
+                    componentFromPair[ii] = {edge.component, 1};
+                    break;
+                }
+            
+            }
+            ii=ii+1;
+        }
+        /*
+        for (const auto& ii  : componentFromPair) {
+                    std::cout << "Component: " << ii.first << std::endl;  
+                    std::cout << "node: " << ii.second << std::endl;
+        }*/
+        return componentFromPair;
+    }
+
     void fun1(std::string& line,std::vector<std::string>& node,std::string& type, std::unordered_map<std::string, double>& data1)
     {
           std::istringstream iss(line);
