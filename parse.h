@@ -21,6 +21,7 @@ namespace spice
         std::vector<std::string> external_nodes;
         std::vector<Edge> components; //  子电路内部元件  
     };
+    double convert_to_hz(const std::string& value_str);
     std::vector<std::string> split_space(const std::string& text);
     double extractValues(const std::string& input, const std::string& keyword);
     int findNodePosition(const std::string& node1, const std::vector<std::string>& a1);

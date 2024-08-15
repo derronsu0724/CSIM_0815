@@ -39,7 +39,6 @@ namespace csim
      */
     ModelEntry *ModelLoader::load(const char *filename)
     {
-        // std::cout    <<__LINE__ <<",load" <<"\n";
         csimModel::pfnCreateModel_t pfnCreate = nullptr;
         csimModel::pfnDeleteModel_t pfnDelete = nullptr;
         const ModelDescriptor *descriptor = nullptr;

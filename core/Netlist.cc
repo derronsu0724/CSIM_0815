@@ -22,6 +22,7 @@
 #include "csim/model/ModelBase.h"
 #include "csim/internal/ModelLoader.h"
 #include "csim/internal/Netlist.h"
+#include <fstream>
 
 namespace csim
 {
@@ -272,7 +273,21 @@ namespace csim
                 mif.model->setNode(i, m_ufsetRanks[root]);
             }
         }
-
+#ifdef DEBUG_MATRIX
+        std::ofstream outFile("Netlist.txt");
+        for (auto &mif : m_models)
+        {
+            auto a1=mif.entry;
+            auto a2=mif.model;            
+            outFile  << a2->name() << ",";
+            for(auto ii:a2->get_m_nodes())
+            {
+                 outFile  << ii << ",";    
+            }
+            outFile   << "\n";
+        }
+        outFile.close();
+#endif
         return 0;
     }
 

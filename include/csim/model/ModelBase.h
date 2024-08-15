@@ -92,7 +92,7 @@ namespace csimModel
         double *getEPtr(unsigned int row);
         double *getUPtr(unsigned int row);
         double *getJPtr(unsigned int row);
-
+        std::string m_log="log_modelBase.txt";
         unsigned int getNumIntegrators() const;
         csim::IntegralHistory *getIntegratorX(unsigned int nint);
         csim::IntegralHistory *getIntegratorY(unsigned int nint);

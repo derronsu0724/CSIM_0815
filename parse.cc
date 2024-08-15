@@ -10,6 +10,22 @@
 #include <fstream>
 namespace spice
 {
+
+    double convert_to_hz(const std::string& value_str) {
+        double value = std::stod(value_str.substr(0, value_str.size() - 1));
+        std::string unit = value_str.substr(value_str.size() - 1);
+
+        if (unit == "k") {
+            return value * 1000;
+        } else if (unit == "M") {
+            return value * 1000000;
+        } else if (unit == "G") {
+            return value * 1000000000;
+        } else {
+            throw std::invalid_argument("Invalid unit");
+        }
+    }
+
     std::vector<std::string> split_space(const std::string& text) {
     boost::regex ws_re("\\s+");
     std::vector<std::string> vector_(

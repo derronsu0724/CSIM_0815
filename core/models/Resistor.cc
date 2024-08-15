@@ -16,7 +16,7 @@
  */
 
 #include "Resistor.h"
-
+#include <fstream>
 namespace csimModel
 {
 
@@ -74,9 +74,13 @@ namespace csimModel
         }
         else
         {
-            //std::cout << "getBranch(0):" <<getBranch(0)<< std::endl;
-            //std::cout << "getNode(0):" <<getNode(0)<< std::endl;
-            //std::cout << "getNode(0):" <<getNode(1)<< std::endl;
+#ifdef DEBUG_MODELBASE
+            std::ofstream outFile(m_log, std::ios::app);
+            outFile << "Resistor: " << name() << std::endl;
+            outFile << "getNode(0):" <<getNode(0)<< std::endl;
+            outFile << "getNode(1):" <<getNode(1)<< std::endl;
+            outFile.close();
+#endif
             addY(getNode(0), getNode(0), +m_G), addY(getNode(0), getNode(1), -m_G);
             addY(getNode(1), getNode(0), -m_G), addY(getNode(1), getNode(1), +m_G);
         }
