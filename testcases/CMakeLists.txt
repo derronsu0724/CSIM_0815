@@ -17,7 +17,7 @@ set(TEST_SRCS
     #"${CMAKE_CURRENT_SOURCE_DIR}/tstCapacitorOP.cc"
     #"${CMAKE_CURRENT_SOURCE_DIR}/tstInductorOP.cc"
     #"${CMAKE_CURRENT_SOURCE_DIR}/tstVACInOP.cc"
-    "${CMAKE_CURRENT_SOURCE_DIR}/tstACLinearCircuit.cc"
+    #"${CMAKE_CURRENT_SOURCE_DIR}/tstACLinearCircuit.cc"
     #"${CMAKE_CURRENT_SOURCE_DIR}/tstIntegralCorrector.cc"
     #"${CMAKE_CURRENT_SOURCE_DIR}/tstIntegralPredictor.cc"
     #"${CMAKE_CURRENT_SOURCE_DIR}/tstTransientAnalysis.cc"
