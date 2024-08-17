@@ -203,7 +203,7 @@ std::ofstream outFile(m_log_cir);
             {
                 for(size_t j = 0; j < m_matrixRows; j++)
                 {
-                    outFile << std::setw(10)<< m_A[i * m_matrixRows + j] << ",";
+                    outFile <<"("<< std::setw(15)<< m_A[i * m_matrixRows + j].real()<<"," << std::setw(15)<< m_A[i * m_matrixRows + j].imag() << "),";
                     //outFile << fmt::format("{:<10} ,\n", m_A[i * m_matrixRows + j]);
                 }
                 outFile << "\n";

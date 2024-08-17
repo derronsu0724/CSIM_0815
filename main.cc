@@ -32,19 +32,19 @@ static void OPCircuit_helper(std::set<std::string> nodes,std::vector<spice::Edge
             } else if (edge.type == "voltage") {            
                 //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value1: " << edge.value["DC"]<< ", value2: " << edge.value["AC"] << ")" << std::endl;
                 ret = circuit->netlist()->addComponent(edge.component.c_str(), e_VDC);
-                ret = circuit->netlist()->configComponent(edge.component.c_str(), "V", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value["DC"]));
+                ret = circuit->netlist()->configComponent(edge.component.c_str(), "V", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(std::get<double>(edge.value["DC"])));
             } else if (edge.type == "resistor") {            
                 //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
                 ret = circuit->netlist()->addComponent(edge.component.c_str(), e_R);
-                ret = circuit->netlist()->configComponent(edge.component.c_str(), "R", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value["value"]));
+                ret = circuit->netlist()->configComponent(edge.component.c_str(), "R", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(std::get<double>(edge.value["value"])));
             } else if (edge.type == "capacitor") {            
                 //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
                 ret = circuit->netlist()->addComponent(edge.component.c_str(), e_CAP);
-                ret = circuit->netlist()->configComponent(edge.component.c_str(), "C", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value["value"]));
+                ret = circuit->netlist()->configComponent(edge.component.c_str(), "C", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(std::get<double>(edge.value["value"])));
             } else if (edge.type == "inductor") {            
                 //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
                 ret = circuit->netlist()->addComponent(edge.component.c_str(), e_L);
-                ret = circuit->netlist()->configComponent(edge.component.c_str(), "L", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value["value"]));
+                ret = circuit->netlist()->configComponent(edge.component.c_str(), "L", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(std::get<double>(edge.value["value"])));
             }
         }        
         // 调用函数  
@@ -101,20 +101,20 @@ static int ACLinearCircuit(std::set<std::string> nodes,std::vector<spice::Edge> 
             } else if (edge.type == "voltage") {            
                 //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value1: " << edge.value["DC"]<< ", value2: " << edge.value["AC"] << ")" << std::endl;
                 ret = circuit->netlist()->addComponent(edge.component.c_str(), e_VAC);
-                ret = circuit->netlist()->configComponent(edge.component.c_str(), "Vp", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value["AC"]));
+                ret = circuit->netlist()->configComponent(edge.component.c_str(), "Vp", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(std::get<double>(edge.value["AC"])));
                 ret = circuit->netlist()->configComponent(edge.component.c_str(), "freq", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(50.0));
             } else if (edge.type == "resistor") {            
                 //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
                 ret = circuit->netlist()->addComponent(edge.component.c_str(), e_R);
-                ret = circuit->netlist()->configComponent(edge.component.c_str(), "R", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value["value"]));
+                ret = circuit->netlist()->configComponent(edge.component.c_str(), "R", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(std::get<double>(edge.value["value"])));
             } else if (edge.type == "capacitor") {            
                 //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
                 ret = circuit->netlist()->addComponent(edge.component.c_str(), e_CAP);
-                ret = circuit->netlist()->configComponent(edge.component.c_str(), "C", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value["value"]));
+                ret = circuit->netlist()->configComponent(edge.component.c_str(), "C", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(std::get<double>(edge.value["value"])));
             } else if (edge.type == "inductor") {            
                 //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
                 ret = circuit->netlist()->addComponent(edge.component.c_str(), e_L);
-                ret = circuit->netlist()->configComponent(edge.component.c_str(), "L", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(edge.value["value"]));
+                ret = circuit->netlist()->configComponent(edge.component.c_str(), "L", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(std::get<double>(edge.value["value"])));
             }
         } 
         // 调用函数  
@@ -189,7 +189,128 @@ static int ACLinearCircuit(std::set<std::string> nodes,std::vector<spice::Edge> 
     return ret;
 }
 
+static void tstTransient(std::set<std::string> nodes,std::vector<spice::Edge> edges,std::vector<std::string> probe_names, double tstep, double tstop)
+{
+        //std::cout <<"tstep "<< tstep << "\n";
+        //std::cout <<"tstop "<< tstop << "\n";
+        int ret = 0;
+        csim::ModelEntry *e_D = csim::ModelLoader::load(PNLibrary);
+        csim::ModelEntry *e_R = csim::ModelLoader::load(resistorLibrary);
+        csim::ModelEntry *e_L = csim::ModelLoader::load(InductorLibrary);
+        csim::ModelEntry *e_CAP = csim::ModelLoader::load(CapacitorLibrary);
+        csim::ModelEntry *e_VAC = csim::ModelLoader::load(VACLibrary);
+        csim::Circuit *circuit = new csim::Circuit();
 
+        for (auto &edge : edges) {
+            if (edge.type.empty()) {
+                // std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (value: " << edge.value << ")" << std::endl;  
+            } else if (edge.type == "voltage") {
+                double vp =std::get<std::vector<double>>(edge.value["sin"])[1];
+                double freq=std::get<std::vector<double>>(edge.value["sin"])[2];
+                double phase=std::get<std::vector<double>>(edge.value["sin"])[5];
+                std::cout <<"vp,"<< vp << "\n";
+                std::cout <<"freq,"<< freq << "\n";
+                std::cout <<"phase,"<< phase << "\n";
+                //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value1: " << edge.value["DC"]<< ", value2: " << edge.value["AC"] << ")" << std::endl;
+                ret = circuit->netlist()->addComponent(edge.component.c_str(), e_VAC);
+                ret = circuit->netlist()->configComponent(edge.component.c_str(), "Vp", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(vp));
+                //ret = circuit->netlist()->configComponent(edge.component.c_str(), "freq", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(50.0));
+                ret = circuit->netlist()->configComponent(edge.component.c_str(), "freq", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(freq));
+                ret = circuit->netlist()->configComponent(edge.component.c_str(), "phase", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(phase));
+                /*
+                    // 输出解析结果
+                    auto value0=edge.value;
+                    auto pwl_data=std::get<std::vector<spice::TimeVoltage>>(edge.value["PWL"]);
+                    for (const auto& pair : value0) {
+                        std::cout << "Key: " << pair.first << "\n";
+                        if (std::holds_alternative<double>(pair.second)) {
+                            std::cout << "Value: " << std::get<double>(pair.second) << "\n";
+                        } else if (std::holds_alternative<std::vector<spice::TimeVoltage>>(pair.second)) {
+                            for (const auto& tv : std::get<std::vector<spice::TimeVoltage>>(pair.second)) {
+                                std::cout << "Time: " << tv.time << ", Voltage: " << tv.voltage << "\n";
+                            }
+                        }
+                    }
+                */
+            } else if (edge.type == "resistor") {
+                //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
+                ret = circuit->netlist()->addComponent(edge.component.c_str(), e_R);
+                ret = circuit->netlist()->configComponent(edge.component.c_str(), "R", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(std::get<double>(edge.value["value"])));
+            } else if (edge.type == "capacitor") {
+                //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
+                ret = circuit->netlist()->addComponent(edge.component.c_str(), e_CAP);
+                ret = circuit->netlist()->configComponent(edge.component.c_str(), "C", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(std::get<double>(edge.value["value"])));
+            } else if (edge.type == "inductor") {
+
+                //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
+                ret = circuit->netlist()->addComponent(edge.component.c_str(), e_L);
+                ret = circuit->netlist()->configComponent(edge.component.c_str(), "L", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(std::get<double>(edge.value["value"])));
+            }
+        } 
+        // 调用函数  
+        std::map<std::string, std::vector<std::pair<spice::Edge, std::string>>> nodeEdges = spice::findEdgesForNodes(edges);
+        // printEdgePairs(nodeEdges);
+        ret = circuit->netlist()->prepare();
+        for (const auto& node : nodeEdges) {  
+           // std::cout << "Node: " << node.first << "\n";
+            const auto& edgesInfo = node.second;
+            size_t count = edgesInfo.size();        
+            for (size_t i = 0; i < count; ++i) {  
+                for (size_t j = i + 1; j < count; ++j) {  
+                    // 两条边的配对  
+                    const spice::Edge& edge1 = edgesInfo[i].first;  
+                    const spice::Edge& edge2 = edgesInfo[j].first;
+                    const std::string& position1 = edgesInfo[i].second;
+                    const std::string& position2 = edgesInfo[j].second;
+                    //std::cout << edge1.component << ", "<< position1 << ", " << edge2.component << ", " << position2<< "\n";                            
+                    ret = circuit->netlist()->wire(edge1.component.c_str(), std::stoi(position1), edge2.component.c_str(), std::stoi(position2));            
+                }
+            }
+        }
+        ret = circuit->netlist()->generateNodes();
+        std::cout   <<__LINE__ <<"\n"; 
+        /* Transient analysis */
+        csim::AnalyzerBase *analyzer = csim::Analyzers::createInstance("transient", circuit);
+        analyzer->property().setProperty("tstop", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(tstop));
+        analyzer->property().setProperty("tstep", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(tstep));
+
+        /* Get nodes */
+        auto probe_names_data=spice::findEdgesBetweenProbes(edges,probe_names);
+        unsigned int n_gnd, n1[probe_names_data.size()-1];        
+        ret = circuit->netlist()->getTermlNode(probe_names_data[probe_names_data.size()-1].first.c_str(), probe_names_data[probe_names_data.size()-1].second, &n_gnd);
+        analyzer->addInterestNode(n_gnd);
+        for (size_t ii=0;ii<probe_names_data.size()-1;ii++)
+        {
+            ret = circuit->netlist()->getTermlNode(probe_names_data[ii].first.c_str(), probe_names_data[ii].second, &n1[ii]);
+            analyzer->addInterestNode(n1[ii]);
+        }
+
+        csim::Dataset dset;
+        ret = analyzer->analyze(&dset);
+        /* Check solution vector of DC analyzer */
+        const csim::Variable &T = dset.getIndependentVar("time");
+        csim::Variable &Vgnd = dset.getDependentVar("voltage", analyzer->makeVarName("V", n_gnd));
+        //const csim::Variable &Vn1 = dset.getDependentVar("voltage", analyzer->makeVarName("V", n1));
+        std::ofstream fof("outsD.csv");
+        for (unsigned int i = 0; i < T.getNumValues(); ++i)
+        {
+
+            fof  <<i<<","<<T.at(i).real()<<",";
+            for (size_t jj=0;jj<probe_names_data.size()-1;jj++)
+            {
+                csim::Variable &Vn1 = dset.getDependentVar("voltage", analyzer->makeVarName("V", n1[jj]));
+                csimModel::MComplex _volt = Vn1.at(i) - Vgnd.at(i);
+                fof << _volt.real() << ",";
+            }
+            fof  <<"\n";
+        }
+
+        delete analyzer;
+        delete circuit;
+        delete e_D;
+        delete e_R;
+        delete e_VAC;
+}
 
 
 int main(int argc, char *argv[]) {
@@ -219,13 +340,13 @@ int main(int argc, char *argv[]) {
                     if (edge.type.empty()) {
                         // std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (value: " << edge.value << ")" << std::endl;  
                     } else if (edge.type == "voltage") {            
-                        std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value1: " << edge.value["DC"]<< ", value2: " << edge.value["AC"] << ")" << std::endl;
+                        std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value1: " << std::get<double>(edge.value["DC"])<< ", value2: " << std::get<double>(edge.value["AC"]) << ")" << std::endl;
                     } else if (edge.type == "resistor") {            
-                        std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
+                        std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << std::get<double>(edge.value["value"]) << ")" << std::endl;
                     } else if (edge.type == "capacitor") {            
-                        std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
+                        std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << std::get<double>(edge.value["value"])<< ")" << std::endl;
                     } else if (edge.type == "inductor") {            
-                        std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << edge.value["value"] << ")" << std::endl;
+                        std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value: " << std::get<double>(edge.value["value"] )<< ")" << std::endl;
                     }
                 }
             std::vector<std::string> ana{"ac","op","tran"};
@@ -253,6 +374,16 @@ int main(int argc, char *argv[]) {
             ACLinearCircuit(nodes,edges, probe_names,"lin", freq[1], freq[2],freq[0]);
         } else if(it->first=="op"){
             OPCircuit_helper(nodes,edges, probe_names);
+        } else if(it->first=="tran"){
+            std::vector<double> time;
+            for (double value : it->second) {
+                time.push_back(value); 
+                std::cout << value << " ";
+            }
+            std::cout << "\n";
+            std::cout <<"time[0],"<<time[0]<< "\n";
+            std::cout <<"time[1],"<<time[1]<< "\n";
+            tstTransient(nodes,edges, probe_names,time[0], time[1]);
         }
     }   
 

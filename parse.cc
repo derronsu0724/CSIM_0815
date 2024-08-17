@@ -5,12 +5,12 @@
 #include <string>
 #include <vector>
 #include <boost/regex.hpp>
-
+#include <variant>
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
 namespace spice
 {
-
     double convert_to_hz(const std::string& value_str) {
         double value = std::stod(value_str.substr(0, value_str.size() - 1));
         std::string unit = value_str.substr(value_str.size() - 1);
@@ -35,18 +35,77 @@ namespace spice
     }
 
     double extractValues(const std::string& input, const std::string& keyword) {  
-        double value= 0;  
-        std::istringstream stream(input);  
-        std::string temp;  
+        double value= 0;
+        std::istringstream stream(input);
+        std::string temp;
+        while (stream >> temp) {
+            // 检查当前单词是否在关键词列表中
+            if (temp == keyword) {
+                stream >> value; // 获取关键词后面的值
+            }
+        }
+        return value;
+    }
 
-        while (stream >> temp) {  
-            // 检查当前单词是否在关键词列表中  
-            if (temp == keyword) {  
-                stream >> value; // 获取关键词后面的值  
-            }  
-        }  
+    std::vector<double> parseSIN(const std::string &str) {
+        std::vector<double> result;
+        std::istringstream iss(str);
+        std::string token;
 
-        return value;  
+        // 跳过"SIN"之前的部分
+        while (std::getline(iss, token, ' ')) {
+            if (token == "sin") {
+                break;
+            }
+        }
+
+        // 解析"SIN"后面的数字
+        while (std::getline(iss, token, ' ')) {
+            try {
+                //std::cout << token << " ";
+                result.push_back(std::stod(token));
+            } catch (const std::invalid_argument& e) {
+                // 如果解析失败，跳过这个token
+                continue;
+            }
+        }
+        // 输出解析结果
+        /*std::cout << "SIN\n";
+        for (const auto& value : result) {
+             std::cout << value << " ";
+         }
+        std::cout << "\n";*/
+        return result;
+    }
+
+    // 解析PWL数据的函数
+    std::vector<TimeVoltage> parsePWL(const std::string& str) {
+        std::vector<TimeVoltage> data;
+        std::string::size_type pos = str.find("pwl");
+        if (pos != std::string::npos) {
+            // 找到pwl后面的数据部分
+            std::string pwlData = str.substr(pos + 3);
+            std::istringstream iss(pwlData);
+            std::string token;
+            while (std::getline(iss, token, ',')) {
+                // 分割每个时间-电压对
+                std::istringstream tokenStream(token);
+                double time, voltage;
+                if (std::getline(tokenStream, token, 'n')) {
+                    time = std::stod(token);
+                    if (std::getline(tokenStream, token, 'v')) {
+                        voltage = std::stod(token);
+                        // 将时间-电压对添加到结果中
+                        data.push_back({time, voltage});
+                    }
+                }
+            }
+        }
+        // 输出解析结果
+        // for (const auto& pair : data) {
+        //     std::cout << "Time: " << pair.time << "n, Voltage: " << pair.voltage << "v" << std::endl;
+        // }
+        return data;
     }
     int findNodePosition(const std::string& node1, const std::vector<std::string>& a1) {  
         for (size_t i = 0; i < a1.size(); ++i) {  
@@ -141,7 +200,7 @@ namespace spice
         return componentFromPair;
     }
 
-    void fun1(std::string& line,std::vector<std::string>& node,std::string& type, std::unordered_map<std::string, double>& data1)
+    void fun1(std::string& line,std::vector<std::string>& node,std::string& type, std::unordered_map<std::string, std::variant<double,std::vector<double>, std::vector<TimeVoltage>>>& data1)
     {
           std::istringstream iss(line);
           std::string component;
@@ -173,6 +232,14 @@ namespace spice
               type="voltage";
               data1["DC"]=extractValues(line, "DC");
               data1["AC"]=extractValues(line, "AC");
+              //data1["pwl"]=parsePWL(line);
+              data1["sin"]=parseSIN(line);
+                // 输出解析结果
+                std::cout << "SIN\n";
+                for (const auto& value : std::get<std::vector<double>>(data1["sin"])) {
+                    std::cout << value << " ";
+                }
+                std::cout << "\n";
           }
           node.push_back(node1);
           node.push_back(node2);
@@ -184,7 +251,7 @@ namespace spice
         std::string line;
         // std::cout   <<__LINE__ <<"\n";
         if (netlist.is_open()) {
-            Subcircuit current_subcircuit;  
+           
             bool in_subcircuit = false;
             std::vector<Subcircuit> subcircuits; // 存储所有子电路
             
@@ -192,13 +259,15 @@ namespace spice
                 // std::cout << line << std::endl; // 打印每行内容  
                 // 跳过注释行  
                 if (line.empty() || line[0] == '*') continue;
+                Subcircuit current_subcircuit;
                 std::istringstream iss(line);
                 std::string component;
                 iss >> component; // 读取元件名称
                 std::vector<std::string> node_component;
                 std::string type;  // 存储类型  
                 //std::vector<double> value; // 存储元件的值
-                std::unordered_map<std::string, double> value; // 存储元件的值
+                //std::unordered_map<std::string, double> value; // 存储元件的值
+                std::unordered_map<std::string, std::variant<double,std::vector<double>, std::vector<TimeVoltage>>> value; // 存储元件的值
                 // 解析节点和元件值
                 if (component == ".subckt") { // 检测子电路开始
                     in_subcircuit = true;
@@ -247,6 +316,16 @@ namespace spice
                         }
                         m_analysis.emplace("ac", f0);  
                     }
+                    else if (component == ".tran") {
+                        std::string temp1;
+                        std::vector<double> t0;
+                        while (iss >> temp1) {
+                            //std::cout <<temp1<<"\n";
+                            t0.push_back(std::stod(temp1));
+                            std::cout <<t0[t0.size()-1]<<"\n";
+                        }
+                        m_analysis.emplace("tran", t0);  
+                    }
                     else if (component[0] == 'X') { 
                         //std::cout   <<__LINE__ <<"\n";
                         auto temp_=split_space(line);
@@ -280,7 +359,21 @@ namespace spice
                         }
                     }
             else{
-                fun1(line,node_component,type,value);
+                    fun1(line,node_component,type,value);
+                    // 输出解析结果
+                    /*std::unordered_map<std::string, double> value2;
+                    for (const auto& pair : value) {
+                        std::cout << "Key: " << pair.first << std::endl;
+                        if (std::holds_alternative<double>(pair.second)) {
+                            value2[pair.first]    =std::get<double>(pair.second) ;
+                            std::cout << "Value: " << std::get<double>(pair.second) << std::endl;
+                        } else if (std::holds_alternative<std::vector<TimeVoltage>>(pair.second)) {
+                            for (const auto& tv : std::get<std::vector<TimeVoltage>>(pair.second)) {
+                                std::cout << "Time: " << tv.time << ", Voltage: " << tv.voltage << std::endl;
+                            }
+                        }
+                    }
+                    */
                 m_edges.push_back({node_component[0], node_component[1], component, type, value});
                 m_nodes.insert(node_component[0]);
                 m_nodes.insert(node_component[1]);
