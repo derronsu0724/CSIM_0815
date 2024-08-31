@@ -208,9 +208,6 @@ static void tstTransient(std::set<std::string> nodes,std::vector<spice::Edge> ed
                 double vp =std::get<std::vector<double>>(edge.value["sin"])[1];
                 double freq=std::get<std::vector<double>>(edge.value["sin"])[2];
                 double phase=std::get<std::vector<double>>(edge.value["sin"])[5];
-                std::cout <<"vp,"<< vp << "\n";
-                std::cout <<"freq,"<< freq << "\n";
-                std::cout <<"phase,"<< phase << "\n";
                 //std::cout << edge.component << ": " << edge.from << " -> " << edge.to << " (type: " << edge.type << ", value1: " << edge.value["DC"]<< ", value2: " << edge.value["AC"] << ")" << std::endl;
                 ret = circuit->netlist()->addComponent(edge.component.c_str(), e_VAC);
                 ret = circuit->netlist()->configComponent(edge.component.c_str(), "Vp", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(vp));
@@ -268,7 +265,6 @@ static void tstTransient(std::set<std::string> nodes,std::vector<spice::Edge> ed
             }
         }
         ret = circuit->netlist()->generateNodes();
-        std::cout   <<__LINE__ <<"\n"; 
         /* Transient analysis */
         csim::AnalyzerBase *analyzer = csim::Analyzers::createInstance("transient", circuit);
         analyzer->property().setProperty("tstop", csimModel::Variant(csimModel::Variant::VariantDouble).setDouble(tstop));

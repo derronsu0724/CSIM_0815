@@ -53,7 +53,7 @@ namespace csim
         {
             return m_A;
         }
-        inline const unsigned int &get_m_matrixRows() const
+        inline const unsigned int &cget_m_matrixRows() const
         {
             return m_matrixRows;
         }
